@@ -10,7 +10,6 @@ import os
 import shutil
 import re
 from country_receipt import get_country_receipt
-from receipt_file import get_receipt
 import json
 
 from metapub import PubMedFetcher
