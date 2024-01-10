@@ -1,0 +1,9 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "testPVautov2"
+resolve_s3 = true
+s3_prefix = "testPVautov2"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Stage=\"dev\""
+image_repositories = ["TestPVAutomation=678999303559.dkr.ecr.us-east-1.amazonaws.com/testpvauto08d423cb/testpvautomationd5ed28barepo"]

@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    Timeout: 900
+    MemorySize: 3008
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+Resources:
+  TestPVAutomation:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionUrlConfig:
+        AuthType: NONE
+      PackageType: Image
+      Architectures:
+      - x86_64
+      ImageUri: testpvautomation:python3.9-v1
+    Metadata:
+      DockerContext: C:\Users\kathiaja\Downloads\Pvtest-main\Pvtest-main
+      DockerTag: python3.9-v1
+      Dockerfile: Dockerfile
+      SamResourceId: TestPVAutomation
