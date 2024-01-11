@@ -9,7 +9,8 @@ import pysftp
 import os
 import shutil
 import re
-from country_receipt import get_country_receipt
+from for_country import get_country
+from receipt_file import get_receipt
 import json
 
 from metapub import PubMedFetcher
@@ -79,59 +80,73 @@ def pdf_extraction(event=None, context=None):
         title_of_page = meta.title
         doi = ""
         json_response_from_api = {}
-        if not title_of_page:
-            text_up_to_doi_for_author = ""
-            # Iterate through the lines
-            for line in all_text.split("\n"):
+        try:
+            if not title_of_page:
+                text_up_to_doi_for_author = ""
+                # Iterate through the lines
                 for line in all_text.split("\n"):
-                    if "DOI:" in line or "doi:" in line:
-                        text_up_to_doi_for_author = line
-                        break  # Stop when the line containing "DOI:" is found
-                affiliations = text_up_to_doi_for_author.split("\n")
-                index_doi = text_up_to_doi_for_author.find('DOI:')
-                doi_raw = text_up_to_doi_for_author[index_doi + len('doi:'):].strip()
-                doi = re.sub(r'[^\x00-\x7F]+', '', doi_raw)
-        if doi:
-            print("yes into pubmed")
-            fetch = PubMedFetcher()
-            print(fetch)
-            print("again", doi)
-            article = fetch.article_by_doi(doi)
-            title_of_page = article.title
+                    for line in all_text.split("\n"):
+                        if "DOI:" in line or "doi:" in line:
+                            text_up_to_doi_for_author = line
+                            break  # Stop when the line containing "DOI:" is found
+                    affiliations = text_up_to_doi_for_author.split("\n")
+                    index_doi = text_up_to_doi_for_author.find('DOI:')
+                    doi_raw = text_up_to_doi_for_author[index_doi + len('doi:'):].strip()
+                    doi = re.sub(r'[^\x00-\x7F]+', '', doi_raw)
+                if doi:
+                    print("yes into pubmed")
+                    fetch = PubMedFetcher()
+                    print(fetch)
+                    print("again", doi)
+                    article = fetch.article_by_doi(doi)
+                    title_of_page = article.title
+        except Exception as e:
+            print(f"Exception occurred: {str(e)}")
+            title_of_page = None
+            doi = None
+            if title_of_page is None or doi is None:
+                response = {
+                    "success": False,
+                    "message": "Title is not found",
+                    "first_file_name": weekly_reader_1,
+                    "second_file_name": source_document,
+                }
+                print(json.dumps(response))
+                # url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
+                print(
+                    "=--------------------------------------------------------------------------------------------------------")
+                # Send the POST request with JSON data
+                print(response)
 
-        if title_of_page is None or doi is None:
-            response = {
-            "success": False,
-            "message": "Title is not found",
-            "first_file_name": weekly_reader_1,
-            "second_file_name": source_document,
-        }
-            url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
-            print("=--------------------------------------------------------------------------------------------------------")
-            # Send the POST request with JSON data
-            print(response)
-            response_from_api = requests.post(url, json=response)
-            print("*" * 50)
-            print(response_from_api.text)
-            json_response_from_api = response_from_api.json()
-        country_verify, latest_receipt_date = get_country_receipt(source_text=all_text, en_core=nlp, weekly_text_1=weekly_text, meta_data=meta)
-        if title_of_page is not None and latest_receipt_date is None:
-            print("no receipt block")
-            response = {
-                "success": False,
-                "message": "Latest Receipt date is not found",
-                "first_file_name": weekly_reader_1,
-                "second_file_name": source_document
-            }
-            url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
-            print("=--------------------------------------------------------------------------------------------------------")
-            # Send the POST request with JSON data
-            print(response)
-            response_from_api = requests.post(url, json=response)
-            print("*" * 50)
-            print(response_from_api.text)
-            json_response_from_api = response_from_api.json()
-        if title_of_page is not None and country_verify is None:
+        country_verify = ""
+        latest_receipt_date = ""
+        try:
+            latest_receipt_date = get_receipt(en_core=nlp, weekly_text_1=weekly_text)
+
+        except Exception as e:
+            print(f"Exception occurred: {str(e)}")
+            if latest_receipt_date == "":
+                print("no receipt block")
+                response = {
+                    "success": False,
+                    "message": "Latest Receipt date is not found",
+                    "first_file_name": weekly_reader_1,
+                    "second_file_name": source_document
+                }
+                url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
+                print(
+                    "=--------------------------------------------------------------------------------------------------------")
+                # Send the POST request with JSON data
+                print(response)
+                response_from_api = requests.post(url, json=response)
+                print("*" * 50)
+                print(response_from_api.text)
+                json_response_from_api = response_from_api.json()
+        try:
+            country_verify = get_country(title=title_of_page, weekly_text_1=weekly_text, en_core=nlp)
+
+        except Exception as e:
+            print(f"Exception occurred: {str(e)}")
             response = {
                 "success": False,
                 "message": "country is not found",
@@ -147,6 +162,7 @@ def pdf_extraction(event=None, context=None):
             print("*" * 50)
             print(response_from_api.text)
             json_response_from_api = response_from_api.json()
+
         if title_of_page is not None and country_verify is not None and latest_receipt_date is not None:
             general_extraction, reporter_extraction = get_general_reporter(
                 source_text=all_text,
@@ -159,6 +175,10 @@ def pdf_extraction(event=None, context=None):
             parent_extraction = get_parent_text(source_text=all_text, en_core=nlp, bcd5r=nlp_1)
 
             response_for_integration = {
+                "success": True,
+                "message": "Extracted successfully",
+                "first_file_name": "weekly_reader_1",
+                "second_file_name": "source_document",
                 "general_information": general_extraction,
                 "reporter": reporter_extraction,
                 "patient": patient_extraction,
@@ -173,15 +193,15 @@ def pdf_extraction(event=None, context=None):
             json_response_from_api = response.json()
             print("*" * 50)
             # Check the response status code
-            if json_response_from_api['statusCode'] == 200:
+            if json_response_from_api['success'] == 'true':
                 # Request was successful
                 print("API request successful.")
-                print("Status Code:", json_response_from_api['statusCode'])
-                print("Response Headers:", response.headers)
+                # print("Status Code:", json_response_from_api['statusCode'])
+                # print("Response Headers:", response.headers)
                 os.chdir('..')
                 shutil.rmtree('random_temp', ignore_errors=True)
                 os.chdir('..')
-                return {'statusCode': json_response_from_api['statusCode'], 'body': json.dumps(
+                return {'success': json_response_from_api['success'], 'body': json.dumps(
                     {"data": 'API request successful', "error ": {'msg': str("Status Code: 200")}, "status": 5})}
 
             else:
@@ -190,19 +210,18 @@ def pdf_extraction(event=None, context=None):
                 shutil.rmtree('random_temp', ignore_errors=True)
                 os.chdir('..')
                 print(
-                    f"API request failed with status code {json_response_from_api['statusCode']}: {json_response_from_api['message']}")
-                print(response.text)
+                    f"API request failed with status code {json_response_from_api['success']}: {json_response_from_api['message']}")
+                #print(response.text)
 
 
 
         #   if ftp:
         #         ftp.close()
 
-        return {'statusCode': json_response_from_api['statusCode'],
+        return {'success': json_response_from_api['success'],
                 'body': json.dumps({"data": 'API request success ', "error ": {
                     'msg': str(
-                        f"API request success with status code {json_response_from_api['statusCode']}: {json_response_from_api['message']}")},
-                                    "status": json_response_from_api['statusCode']})}
+                        f"API request success with success {json_response_from_api['success']}")}})}
 
     except Exception as e:
         os.chdir('..')
