@@ -112,7 +112,7 @@ def pdf_extraction(event=None, context=None):
                     "second_file_name": source_document,
                 }
                 print(json.dumps(response))
-                # url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
+                url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
                 print(
                     "=--------------------------------------------------------------------------------------------------------")
                 # Send the POST request with JSON data
