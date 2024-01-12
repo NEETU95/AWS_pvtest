@@ -177,8 +177,8 @@ def pdf_extraction(event=None, context=None):
             response_for_integration = {
                 "success": True,
                 "message": "Extracted successfully",
-                "first_file_name": "weekly_reader_1",
-                "second_file_name": "source_document",
+                "first_file_name": weekly_reader_1,
+                "second_file_name": source_document,
                 "general_information": general_extraction,
                 "reporter": reporter_extraction,
                 "patient": patient_extraction,
