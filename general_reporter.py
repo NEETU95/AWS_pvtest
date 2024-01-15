@@ -33,13 +33,13 @@ class CustomHTTPException(Exception):
         self.detail = detail
 
 
-def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
+def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_page):
     try:
         all_text = source_text
         print(all_text)
         nlp = en_core
         pmid_pattern = re.compile(r'\b\d{8}\b')  # Assumes PMIDs are 8-digit numbers
-
+        first_page_text = first_page
         # Search for PMIDs in the PDF text
         matches = re.findall(pmid_pattern, all_text)
         if matches:
@@ -84,6 +84,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
         pages = ""
         success = True
         message = ""
+        doi_raw =""
         doi_found = False
         if not title_of_page:
             text_up_to_doi_for_author = ""
@@ -92,47 +93,68 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
             for i, line in enumerate(all_text.split("\n")):
                 if "DOI:" in line or "doi:" in line:
                     if i + 1 < len(all_text.split('\n')):
-                        next_line = all_text.split('\n')[i + 1]
-                        print(f"Next line {i + 2}: {next_line}")
-                        text_up_to_doi_for_author = line + next_line
-                        print("text upto doi author", text_up_to_doi_for_author)
-                        break  # Stop when the line containing "DOI:" is found
-            affiliations = text_up_to_doi_for_author.split("\n")
-            lowercase_text_doi_for_author = text_up_to_doi_for_author.lower()
-            index_doi = lowercase_text_doi_for_author.find('doi:')
-            doi_raw = text_up_to_doi_for_author[index_doi + len('doi:'):].strip()
-            doi = re.sub(r'[^\x00-\x7F]+', '', doi_raw)
-            doi_found = True
-            print("doi", doi)
+                        text_up_to_doi_for_author = line
+                        # print("text upto doi author", text_up_to_doi_for_author)
+                        affiliations = text_up_to_doi_for_author.split("\n")
+                        lowercase_text_doi_for_author = text_up_to_doi_for_author.lower()
+                        index_doi = lowercase_text_doi_for_author.find('doi:')
+                        doi_raw = text_up_to_doi_for_author[index_doi + len('doi:'):].strip()
+                        print("doi_raw is", doi_raw)
+                        doi = re.sub(r'[^\x00-\x7F]+', '', doi_raw)
+                        doi_found = True
+                        print("doi", doi)
+                        break
+                else:
+                    https_index = first_page_text.find("http")
+
+                    # If "https" is found, proceed to extract DOI
+                    if https_index != -1:
+                        # Extract the substring starting from "https"
+                        # Extract the substring starting from "https"
+                        substring = first_page_text[https_index:]
+
+                        urls = re.findall(
+                            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
+                            substring)
+
+                        # Check if any URLs were found
+                        if urls:
+                            print("yes")
+                            # Extract the text before the URL
+                            url_parts = urls[0].split('/')
+                            doi_number = '/'.join(url_parts[3:])
+                            doi = doi_number
+                            print(doi_number)
+
+                        doi_found = True
+                        print("doi", doi)
             if not doi:
-                print("entered into doi")
-                https_index = all_text.find("https")
-
-                # If "https" is found, proceed to extract DOI
-                if https_index != -1:
-                    # Extract the substring starting from "https"
-                    # Extract the substring starting from "https"
-                    substring = all_text[https_index:]
-
-                    # Split the substring at '/'
-                    parts = substring.split('/')
-
-                    # Get the last two parts and join them with '/'
-                    doi = '/'.join(parts[-2:]).strip()
-                    doi_found = True
-                    print("doi", doi)
-
-            if doi_found == False:
-                print('yes')
-                raise HTTPException(status_code=11, detail="DOI not found from source document")
-            else:
+                for i, line in enumerate(all_text.split("\n")):
+                    if "DOI:" in line or "doi:" in line:
+                        print("yupp")
+                        if i + 1 < len(all_text.split('\n')):
+                            print("superr")
+                            next_line = all_text.split('\n')[i + 1]
+                            print(f"Next line {i + 2}: {next_line}")
+                            text_up_to_doi_for_author = line + ' ' + next_line
+                            # print("text upto doi author", text_up_to_doi_for_author)
+                            affiliations = text_up_to_doi_for_author.split("\n")
+                            lowercase_text_doi_for_author = text_up_to_doi_for_author.lower()
+                            index_doi = lowercase_text_doi_for_author.find('doi:')
+                            doi_raw = text_up_to_doi_for_author[index_doi + len('doi:'):].strip()
+                            print("doi_raw is", doi_raw)
+                            doi = re.sub(r'[^\x00-\x7F]+', '', doi_raw)
+                            doi_found = True
+                            print("doi", doi)
+                            break
+            if doi:
                 try:
                     print("yes into pubmed")
                     fetch = PubMedFetcher()
                     print(fetch)
                     print("again", doi)
 
-                    pmid = fetch.pmids_for_query("10.2147/JBM.S424072 ")
+                    pmid = fetch.pmids_for_query(doi)
                     article = fetch.article_by_pmid(pmid)
                     title_of_page = article.title
                     # ... (other attribute or method access)
@@ -434,7 +456,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
             city_ = ""
             state_or_province = ""
             postal_code = ""
-            country = ""
+            _country = ""
             phone_number = ""
             email_address = ""
             fax_number = ""
@@ -713,8 +735,8 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
                 # print("Primary Author Pincode:", postal_code)
 
                 # Country
-                country = found_countries
-                # print("Primary Author Country", found_countries)
+                _country = found_countries
+                print("Primary Author FROM ONE BLOCK Country", found_countries)
 
                 # Phone number
 
@@ -1013,8 +1035,8 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
 
                 # Country
                 if found_countries:
-                    country = found_countries
-                    print("Country:", found_countries)
+                    _country = found_countries
+                    print("Country from doubt:", found_countries)
                 else:
                     affiliations = correspondence_text.split("\n")
                     corr_country = ""
@@ -1032,8 +1054,8 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
                             if country.name in affiliation:
                                 corr_country = country.name
                                 break
-                    # print("Country:", corr_country)
-                    country = corr_country
+                    print("Country from doubt:", corr_country)
+                    _country = corr_country
 
                 # Phone number
 
@@ -1096,7 +1118,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
                 city_correspondence = city_
                 state_or_province_correspondence = state_or_province
                 postal_code_correspondence = postal_code
-                country_correspondence = country
+                country_correspondence = _country
                 phone_number_correspondence = phone_number
                 email_address_correspondence = email_address
                 fax_number_correspondence = fax_number
@@ -1295,9 +1317,9 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
                 # print("Primary Author Pincode:", postal_code)
 
                 # Country
-                country = found_countries
+                _country = found_countries
                 print("Primary Author Country", found_countries)
-
+                print("15", _country)
                 # Phone number
 
                 # print("Primary Author phone number:", phone_number)
@@ -1585,14 +1607,14 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
                                 country_found = True
 
                     for country in pycountry.countries:
-                        if country.name in affiliation:
+                        if country.name.lower() == affiliation.strip().lower():
                             country_from_corr = country.name
                             break
                 if corr_country:
                     country_correspondence = corr_country
                 else:
                     country_correspondence = country_from_corr
-                # print("Correspondence Author Country:", country_correspondence)
+                print("Correspondence Author Country:", country_correspondence)
 
                 # Phone number
 
@@ -1638,6 +1660,8 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
                             fax_number_correspondence = numbers_with_plus_in_brackets
                         elif numbers_with_plus_in_brackets_and_space:
                             fax_number_correspondence = numbers_with_plus_in_brackets_and_space
+
+
                 # print("Correspondence Author Fax Number:", fax_number_correspondence)
 
                 # Alternate number
@@ -1646,6 +1670,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
 
             success_from_reporter = success
             message_from_reporter = message
+
             reporter = {
                 "reporter_information": [
                     {
@@ -1669,7 +1694,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data):
                         "city": city_,
                         "state": state_or_province,
                         "postal_code": postal_code,
-                        "country": country,
+                        "country": _country,
                         "phone_number": phone_number,
                         "email_address": email_address,
                         "fax_number": fax_number,
