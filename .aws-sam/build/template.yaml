@@ -19,7 +19,7 @@ Resources:
       - x86_64
       ImageUri: testpvautomation:python3.9-v1
     Metadata:
-      DockerContext: C:\Users\kathiaja\Downloads\Pvtest-main\Pvtest-main
+      DockerContext: C:\Users\kathiaja\Downloads\git_AW\AWS_pvtest-main_16_01_2024\AWS_pvtest-main
       DockerTag: python3.9-v1
       Dockerfile: Dockerfile
       SamResourceId: TestPVAutomation
