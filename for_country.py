@@ -62,28 +62,35 @@ def get_country(title, weekly_text_1, en_core):
                 print('10')
 
             # country
+            found_countries = ""
             found_cities = []
             text_up_to_doi = ""
             is_part_of_city = False
             city = ""
+
             if author_name.lower() in weekly_doc.text.lower():
                 print('author_name', author_name.lower())
                 print('11')
+                # Find the index of the specific word
                 word_index = weekly_doc.text.find(author_name)
-                extracted_text = weekly_doc.text[word_index + len(author_name):]
 
+                # Extract text after the specific word
+                extracted_text = weekly_doc.text[word_index + len(author_name):]
+                # Iterate through the lines
                 for line in extracted_text.split("\n"):
+                    # print('line is', line)
                     print('12')
                     if "DOI:" in line or "doi" in line:
-                        break
+                        break  # Stop when the line containing "DOI:" is found
                     text_up_to_doi += line
-
+                    # print("text upto doi",text_up_to_doi)
                 affiliations = text_up_to_doi.split("\n")
-
+                # Loop through affiliations and search for country names and cities
                 for affiliation in affiliations:
-                    country_found = False
+                    country_found = False  # Flag to indicate if a country has been found in this affiliation
                     deleted_countries = ['Iran', 'South Korea', 'North Korea', 'Korea', 'Sudan', 'MACAU',
-                                         'Republic Of Ireland', 'USA']
+                                         'Republic Of Ireland',
+                                         'USA']
                     for i in deleted_countries:
                         if i in affiliation:
                             found_countries = i
@@ -94,8 +101,7 @@ def get_country(title, weekly_text_1, en_core):
                         if country.name in affiliation and not found_countries:
                             found_countries = country.name
                             country_found = True
-                            break
-
+                            break  # Stop searching for country names in this affiliation
                     country_doc = nlp(affiliation)
                     for token in country_doc:
                         if token.ent_type_ == "GPE" and token.text:
@@ -109,9 +115,10 @@ def get_country(title, weekly_text_1, en_core):
                                 found_cities.append(city)
                                 is_part_of_city = False
                                 city = ""
-
                 countries = " "
+                # If the city string isn't finished at the end
                 if is_part_of_city != found_countries:
                     found_cities.append(city)
+                print("found_countries", found_countries)
 
     return found_countries

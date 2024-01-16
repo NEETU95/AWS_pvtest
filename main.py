@@ -11,8 +11,8 @@ import re
 from for_country import get_country
 from receipt_file import get_receipt
 import json
-#from events_tab import reaction_event
-from distutils.dir_util import copy_tree
+from events_tab import reaction_event
+
 from metapub import PubMedFetcher
 
 
@@ -29,12 +29,17 @@ def pdf_extraction(event=None, context=None):
     os.makedirs('random_temp', exist_ok=True)  ### changing directory
     os.chdir('random_temp')
     try:
-        #shutil.copy2('/var/task/product_names.xlsx', '/tmp/random_temp')
-        #shutil.copytree('.','/tmp/random_temp/')
-        copy_tree('.','/tmp/random_temp/')
-    except Exception as e:
-        return {'statusCode': 123, 'body': json.dumps({"data": 'failed ', "error ": {'msg': str(e)}, "status": 4})}
-  
+        shutil.copy2('/var/task/product_names.xlsx', '/tmp/random_temp')
+    except shutil.SameFileError:
+        pass
+    try:
+        shutil.copy2('/var/task/medical_event_terms.xlsx', '/tmp/random_temp')
+    except shutil.SameFileError:
+        pass
+    try:
+        shutil.copy2('/var/task/postal-codes.json', '/tmp/random_temp')
+    except shutil.SameFileError:
+        pass
 
     try:
         try:
@@ -78,7 +83,7 @@ def pdf_extraction(event=None, context=None):
         weekly_text = ""
         all_text = ""
         nlp = spacy.load("en_core_web_sm")
-        nlp_1 = spacy.load("/var/task/en-ner-bc5cdr-md")
+        nlp_1 = spacy.load("/var/task/en_ner_bc5cdr_md")
         # Loop through all pages and extract text
         first_page = source_file_reader.pages[0]
         first_page_text = first_page.extract_text()

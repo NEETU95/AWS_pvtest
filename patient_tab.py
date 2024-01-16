@@ -7,7 +7,31 @@ import json
 import pandas as pd
 #from parent import mother_llt, all_text, nlp, nlp_1
 
-
+# weekly_reader = PdfReader('Weekly Literature Hits PDF_plante_khaldy.pdf')
+# source_file_reader = PdfReader('Plante MM.pdf')
+# # weekly_reader = PdfReader('Weekly literature hits PDF.pdf')
+# weekly_reader_num_pages = len(weekly_reader.pages)
+#
+# source_file_num_pages = len(source_file_reader.pages)
+# weekly_text = ""
+# all_text = ""
+# nlp = spacy.load("en_core_web_sm")
+# nlp_1 = spacy.load("en_ner_bc5cdr_md")
+# first_page = source_file_reader.pages[0]
+# first_page_text = first_page.extract_text()
+# # Loop through all pages and extract text
+# for page_num in range(source_file_num_pages):
+#     page = source_file_reader.pages[page_num]
+#     text = page.extract_text()
+#     if "References" in text or "Bibliography" in text:
+#         references_found = True
+#         break
+#     all_text += text
+# for page_num in range(weekly_reader_num_pages):
+#     page = weekly_reader.pages[page_num]
+#     text = page.extract_text()
+#     weekly_text += text
+# meta = source_file_reader.metadata
 
 def get_patient_text(source_text, en_core, bcd5r):
     all_text = source_text
@@ -276,12 +300,15 @@ def get_patient_text(source_text, en_core, bcd5r):
 
     # Find all matches in the text
     matches = weight_pattern.findall(first_three_lines)
+    print("matches from weight",matches)
     sentence = ""
     # Extract weights and units if matches are found
     for match in matches:
         weight, _, units = match
-        sentence_start = max(0, first_three_lines.rfind('.', 0, match.start()))
-        sentence_end = first_three_lines.find('.', match.end())
+        match_start = first_three_lines.find(match[0])
+        match_end = match_start + len(match[0])
+        sentence_start = max(0, first_three_lines.rfind('.', 0, match_start))
+        sentence_end = first_three_lines.find('.', match_end)
         sentence = first_three_lines[sentence_start:sentence_end].strip()
 
     if any(word in sentence.lower() for word in ['weigh']):
@@ -872,3 +899,5 @@ def get_patient_text(source_text, en_core, bcd5r):
         }
     }
     return patient
+
+#patient_response = get_patient_text(source_text=all_text,en_core=nlp, bcd5r=nlp_1)

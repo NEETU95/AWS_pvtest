@@ -17,10 +17,15 @@ from metapub import PubMedFetcher,config
 # all_text = ""
 # nlp = spacy.load("en_core_web_sm")
 # nlp_1 = spacy.load("en_ner_bc5cdr_md")
+# first_page = source_file_reader.pages[0]
+# first_page_text = first_page.extract_text()
 # # Loop through all pages and extract text
 # for page_num in range(source_file_num_pages):
 #     page = source_file_reader.pages[page_num]
 #     text = page.extract_text()
+#     if "References" in text or "Bibliography" in text:
+#         references_found = True
+#         break
 #     all_text += text
 # for page_num in range(weekly_reader_num_pages):
 #     page = weekly_reader.pages[page_num]
@@ -92,6 +97,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
             for i, line in enumerate(all_text.split("\n")):
                 if "DOI:" in line or "doi:" in line:
+                    print("doi is in line", line)
                     if i + 1 < len(all_text.split('\n')):
                         text_up_to_doi_for_author = line
                         # print("text upto doi author", text_up_to_doi_for_author)
@@ -105,23 +111,33 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                         print("doi", doi)
                         break
                 else:
-                    https_index = first_page_text.find("http")
+                    https_index = all_text.find("http")
 
                     # If "https" is found, proceed to extract DOI
                     if https_index != -1:
+                        print("into https index")
                         # Extract the substring starting from "https"
                         # Extract the substring starting from "https"
-                        substring = first_page_text[https_index:]
+                        substring = all_text[https_index:]
 
-                        urls = re.findall(
-                            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
-                            substring)
+                        # urls = re.findall(
+                        #     r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
+                        #     substring)
+                        # Define the pattern for matching DOI URLs
+                        doi_pattern = re.compile(r'https?:\s*//doi\.org/[^\s]+')
+
+                        # Find all matches in the text
+                        matches = doi_pattern.findall(all_text)
+
+                        # Print the matches
+                        for match in matches:
+                            print("Found DOI URL:", match)
 
                         # Check if any URLs were found
-                        if urls:
-                            print("yes")
+                        if matches:
+                            print("yes", matches)
                             # Extract the text before the URL
-                            url_parts = urls[0].split('/')
+                            url_parts = matches[0].split('/')
                             doi_number = '/'.join(url_parts[3:])
                             doi = doi_number
                             print(doi_number)
@@ -1754,6 +1770,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 #             source_text=all_text,
 #             weekly_text_1=weekly_text,
 #             en_core=nlp,
-#             meta_data=meta
+#             meta_data=meta,
+#             first_page=first_page_text
 #         )
 # print(general_extraction, reporter_extraction)
