@@ -12,6 +12,7 @@ from for_country import get_country
 from receipt_file import get_receipt
 import json
 
+
 from metapub import PubMedFetcher
 
 
@@ -39,7 +40,8 @@ def pdf_extraction(event=None, context=None):
         shutil.copy2('/var/task/postal-codes.json', '/tmp/random_temp')
     except shutil.SameFileError:
         pass
-
+    success = True
+    message = ""
     try:
         try:
             cnopts = pysftp.CnOpts()
@@ -59,18 +61,9 @@ def pdf_extraction(event=None, context=None):
                             source_document = file
         except Exception as e:
             print(f"Exception occurred: {str(e)}")
-            response = {
-                "success": False,
-                "message": str(e),
-                "first_file_name": weekly_reader_1,
-                "second_file_name": source_document,
-            }
-            print(json.dumps(response))
-            url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
-            print(
-                "=--------------------------------------------------------------------------------------------------------")
-            # Send the POST request with JSON data
-            print(response)
+            success = False
+            message = str(e)
+            raise Exception(f"Exception occurred: {str(e)}")
 
         weekly_reader = PdfReader(weekly_reader_1)
         source_file_reader = PdfReader(source_document)
@@ -78,11 +71,12 @@ def pdf_extraction(event=None, context=None):
         weekly_reader_num_pages = len(weekly_reader.pages)
         print("222222222222222")
 
+
         source_file_num_pages = len(source_file_reader.pages)
         weekly_text = ""
         all_text = ""
         nlp = spacy.load("en_core_web_sm")
-        nlp_1 = spacy.load("/var/task/en_ner_bc5cdr_md")
+        nlp_1 = spacy.load("/var/task/en-ner-bc5cdr-md")
         # Loop through all pages and extract text
         first_page = source_file_reader.pages[0]
         first_page_text = first_page.extract_text()
@@ -130,19 +124,29 @@ def pdf_extraction(event=None, context=None):
 
                         # If "https" is found, proceed to extract DOI
                         if https_index != -1:
+                            print("into https index")
                             # Extract the substring starting from "https"
                             # Extract the substring starting from "https"
-                            substring = first_page_text[https_index:]
+                            substring = all_text[https_index:]
 
-                            urls = re.findall(
-                                r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
-                                substring)
+                            # urls = re.findall(
+                            #     r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
+                            #     substring)
+                            # Define the pattern for matching DOI URLs
+                            doi_pattern = re.compile(r'https?:\s*//doi\.org/[^\s]+')
+
+                            # Find all matches in the text
+                            matches = doi_pattern.findall(all_text)
+
+                            # Print the matches
+                            for match in matches:
+                                print("Found DOI URL:", match)
 
                             # Check if any URLs were found
-                            if urls:
-                                print("yes")
+                            if matches:
+                                print("yes", matches)
                                 # Extract the text before the URL
-                                url_parts = urls[0].split('/')
+                                url_parts = matches[0].split('/')
                                 doi_number = '/'.join(url_parts[3:])
                                 doi = doi_number
                                 print(doi_number)
@@ -184,25 +188,12 @@ def pdf_extraction(event=None, context=None):
                         title_of_page = title_of_page_1
         except Exception as e:
             print(f"Exception occurred: {str(e)}")
-            title_of_page = None
-            doi = None
-            if title_of_page is None or doi is None:
-                response = {
-                    "success": False,
-                    "message": "Title is not found",
-                    "first_file_name": weekly_reader_1,
-                    "second_file_name": source_document,
-                }
-                print(response)
-                print(json.dumps(response))
-                url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
-                print(
-                    "=--------------------------------------------------------------------------------------------------------")
-                response_from_api = requests.post(url, json=response)
-                print("*" * 50)
-                print(response_from_api.text)
-                json_response_from_api = response_from_api.json()
-                # Send the POST request with JSON data
+            success = False
+            message = "Title is not found"
+            print("success", success)
+            print("message", message)
+            raise Exception(f"Exception occurred: {str(e)}")
+
 
         country_verify = ""
         latest_receipt_date = ""
@@ -210,53 +201,36 @@ def pdf_extraction(event=None, context=None):
             print("checking in 2nd blcok")
             latest_receipt_date = get_receipt(en_core=nlp, weekly_text_1=weekly_text)
             if not latest_receipt_date:
+                success = False
+                message = "Latest Receipt date is not found"
                 raise Exception("latest receipt date is not found")
 
         except Exception as e:
             print(f"Exception occurred: {str(e)}")
-            if latest_receipt_date == "":
-                print("no receipt block")
-                response = {
-                    "success": False,
-                    "message": "Latest Receipt date is not found",
-                    "first_file_name": weekly_reader_1,
-                    "second_file_name": source_document
-                }
-                print(response)
-                url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
-                print(
-                    "=--------------------------------------------------------------------------------------------------------")
-                # Send the POST request with JSON data
+            success = False
+            message = "Latest Receipt date is not found"
+            raise Exception("Latest Receipt date is not found")
 
-                response_from_api = requests.post(url, json=response)
-                print("*" * 50)
-                print(response_from_api.text)
-                json_response_from_api = response_from_api.json()
+
+
+
         try:
             print("checking in 3rd block")
             country_verify = get_country(title=title_of_page, weekly_text_1=weekly_text, en_core=nlp)
             print("country is", country_verify)
             if not country_verify:
+                success = False
+                message = "country is not found"
                 raise Exception("country not found")
 
         except Exception as e:
             print(f"Exception occurred: {str(e)}")
-            response = {
-                "success": False,
-                "message": "country is not found",
-                "first_file_name": weekly_reader_1,
-                "second_file_name": source_document,
-            }
-            print(response)
-            url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
-            print(
-                "=--------------------------------------------------------------------------------------------------------")
-            # Send the POST request with JSON data
+            success = False
+            message = "country is not found"
+            print("success", success)
+            print("message", message)
+            raise Exception("country is not found")
 
-            response_from_api = requests.post(url, json=response)
-            print("*" * 50)
-            print(response_from_api.text)
-            json_response_from_api = response_from_api.json()
         general_extraction = {}
         reporter_extraction = {}
         patient_extraction = {}
@@ -272,51 +246,66 @@ def pdf_extraction(event=None, context=None):
                 )
         except Exception as e:
             print(f"Exception occurred: {str(e)}")
-            response = {
-                "success": False,
-                "message": f"Exception occurred from general_reporter: {str(e)}",
-                "first_file_name": weekly_reader_1,
-                "second_file_name": source_document
-            }
-            print(response)
-            url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
-            print(
-                "=--------------------------------------------------------------------------------------------------------")
-            # Send the POST request with JSON data
-            print(response)
-            response_from_api = requests.post(url, json=response)
-            print("*" * 50)
-            print("repsonse from api",response_from_api.text)
-            json_response_from_api = response_from_api.json()
-            # print(general_extraction, reporter_extraction)
+            success = False
+            message = f"Exception occurred from general_reporter: {str(e)}"
+            print("success", success)
+            print("message", message)
+            raise Exception(f"Exception occurred from general_reporter: {str(e)}")
+
         try:
             patient_extraction = get_patient_text(source_text=all_text, en_core=nlp, bcd5r=nlp_1)
         except Exception as e:
-            print(f"Exception occurred: {str(e)}")
-            response = {
-                "success": False,
-                "message": f"Exception occurred from patient_tab: {str(e)}",
-                "first_file_name": weekly_reader_1,
-                "second_file_name": source_document
-            }
-            print(response)
-            url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
+            print(f"Exception occurred from patient_tab: {str(e)}")
+            success = False
+            message = f"Exception occurred from patient_tab: {str(e)}"
+            print("success", success)
+            print("message", message)
+            raise Exception(f"Exception occurred from patient_tab: {str(e)}")
 
-            print(
-                "=--------------------------------------------------------------------------------------------------------")
-            # Send the POST request with JSON data
-
-            response_from_api = requests.post(url, json=response)
-            print("*" * 50)
-            print(response_from_api.text)
-            json_response_from_api = response_from_api.json()
         try:
             parent_extraction = get_parent_text(source_text=all_text, en_core=nlp, bcd5r=nlp_1)
         except Exception as e:
-            print(f"Exception occurred: {str(e)}")
+            print(f"Exception occurred from parent_tab: {str(e)}")
+            success = False
+            message = f"Exception occurred from parent_tab: {str(e)}"
+            print("success",success)
+            print("message", message)
+            raise Exception(f"Exception occurred from parent_tab: {str(e)}")
+
+        print("success above",success)
+        if success == True:
+            print("entered into success")
+            message = "extracted succesfully"
+            response_for_integration = {
+                "success": True,
+                "message": "Extracted successfully",
+                "first_file_name": weekly_reader_1,
+                "second_file_name": source_document,
+                "general_information": general_extraction,
+                "reporter": reporter_extraction,
+                "patient": patient_extraction,
+                "parent": parent_extraction
+            }
+            print("response of NLP model", json.dumps(response_for_integration))
+
+            url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
+            print(
+                "=--------------------------------------------------------------------------------------------------------")
+            # Send the POST request with JSON data
+            response = requests.post(url, json=response_for_integration)
+            json_response_from_api = response.json()
+            print("*" * 50)
+            os.chdir('..')
+            shutil.rmtree('random_temp', ignore_errors=True)
+            os.chdir('..')
+            return {'success': success, 'body': json.dumps(
+                {"message": "Extracted successfully", "error ": {'msg': str("Status Code: 200")}, "status": 4})}
+        elif success == False:
+            print("from else", success)
+            message = message
             response = {
-                "success": False,
-                "message": f"Exception occurred from parent_tab: {str(e)}",
+                "success": success,
+                "message": message,
                 "first_file_name": weekly_reader_1,
                 "second_file_name": source_document
             }
@@ -324,57 +313,50 @@ def pdf_extraction(event=None, context=None):
             url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
             print(
                 "=--------------------------------------------------------------------------------------------------------")
-            # Send the POST request with JSON data
-
             response_from_api = requests.post(url, json=response)
             print("*" * 50)
-            print(response_from_api.text)
+            # print(response_from_api.text)
             json_response_from_api = response_from_api.json()
+            os.chdir('..')
+            shutil.rmtree('random_temp', ignore_errors=True)
+            os.chdir('..')
+            return {'success': success, 'body': json.dumps(
+                {"message": message, "error ": {'msg': str("Status Code: 404")}, "status": 5})}
 
-        response_for_integration = {
-            "success": True,
-            "message": "Extracted successfully",
-            "first_file_name": weekly_reader_1,
-            "second_file_name": source_document,
-            "general_information": general_extraction,
-            "reporter": reporter_extraction,
-            "patient": patient_extraction,
-            "parent": parent_extraction
-        }
-        print("response of NLP model", json.dumps(response_for_integration))
 
-        url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
-        print(
-            "=--------------------------------------------------------------------------------------------------------")
-        # Send the POST request with JSON data
-        response = requests.post(url, json=response_for_integration)
-        json_response_from_api = response.json()
-        print("*" * 50)
+
+
         # Check the response status code
         if json_response_from_api['success'] == 'true':
             # Request was successful
             print("API request successful.")
             # print("Status Code:", json_response_from_api['statusCode'])
             # print("Response Headers:", response.headers)
-            os.chdir('..')
-            shutil.rmtree('random_temp', ignore_errors=True)
-            os.chdir('..')
-            return {'success': json_response_from_api['success'], 'body': json.dumps(
-                {"data": 'API request successful', "error ": {'msg': str("Status Code: 200")}, "status": 5})}
+
 
         else:
             # Request failed
-            os.chdir('..')
-            shutil.rmtree('random_temp', ignore_errors=True)
-            os.chdir('..')
+
             print(
                 f"API request failed with status code {json_response_from_api['success']}: {json_response_from_api['message']}")
             # print(response.text)
-            return {'failure': json_response_from_api['success'],
-                    'body': json.dumps({"data": 'API request not success ', "error ": {
-                        'msg': str(f"API request failure with {json_response_from_api['success']}")}})}
 
     except Exception as e:
+        response = {
+            "success": success,
+            "message": message,
+            "first_file_name": weekly_reader_1,
+            "second_file_name": source_document
+        }
+        print("exception block executued")
+        print(response)
+        url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
+        print(
+            "=--------------------------------------------------------------------------------------------------------")
+        response_from_api = requests.post(url, json=response)
+        print("*" * 50)
+        print(response_from_api.text)
+        # json_response_from_api = response_from_api.json()
 
         os.chdir('..')
 
@@ -382,6 +364,8 @@ def pdf_extraction(event=None, context=None):
 
         os.chdir('..')
 
-        return {'statusCode': 404, 'body': json.dumps({"data": 'failed ', "error ": {'msg': str(e)}, "status": 4})}
+        return {'success': success, 'body': json.dumps(
+                {"message": message, "error ": {'msg': str("Status Code: 404")}, "status": 6})}
 
-# trail = pdf_extraction(weekly_reader_1="Weekly Literature Hits PDF_plante_khaldy.pdf", source_document="Plante MM.pdf")
+# trail = pdf_extraction(weekly_reader_1="Weekly Literature Hits PDF-senkoro.pdf", source_document="Senkoro E_.pdf")
+# print(trail)
