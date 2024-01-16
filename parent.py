@@ -33,7 +33,7 @@ def get_parent_text(source_text, en_core, bcd5r):
 
     report_to_discussion = ""
     first_three_lines = ""
-    case_keywords = ["Case Presentation", "Case Summary", "Case History", "Case description", "Case Report"]
+    case_keywords = ["Case Presentation", "Case Summary", "Case History", "Case description", "Case Report", "Case"]
     found_case_type = None
     text_after_case_type = ""
 
@@ -50,19 +50,26 @@ def get_parent_text(source_text, en_core, bcd5r):
         # text_lines = text_after_case_type.split('\n')
         first_three_lines = extracted_text
         report_to_discussion = extracted_text
-    elif found_case_type == "Case Report":
-        search_term = "Case Report"
+    elif found_case_type == "Case Report" or found_case_type == "Case report":
+        print("yes")
+        search_term = ["Case Report", "Case report"]
         count = 0
         found_start_line = -1
-        second_report_to_discussion = ""
+        second_report_to_discussion =""
         end_line = -1
-        final_text = ""
         for i, line in enumerate(all_text.split('\n')):
-            if search_term in line:
-                count += 1
-                found_start_line = i
-            if "Discussion" in line:
+            for searching in search_term:
+                if searching in line:
+                    count += 1
+                    if count == 2:
+                        found_start_line = i
+                    break
+
+            # Assuming you want to store the line index where "Case Report" is found
+            if "Discussion" in line or "Conclusions" in line:
+                print("i", i)
                 end_line = i
+        print("found_start_line is", found_start_line)
         #print("count is", count)
         if count > 0 and found_start_line != -1:
             # Extract the found line and the subsequent 7 lines
