@@ -11,7 +11,7 @@ import re
 from for_country import get_country
 from receipt_file import get_receipt
 import json
-from events_tab import reaction_event
+
 
 from metapub import PubMedFetcher
 
