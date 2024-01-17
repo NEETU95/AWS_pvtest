@@ -298,8 +298,7 @@ def pdf_extraction(event=None, context=None):
             os.chdir('..')
             shutil.rmtree('random_temp', ignore_errors=True)
             os.chdir('..')
-            return {'success': success, 'body': json.dumps(
-                {"message": "Extracted successfully", "error ": {'msg': str("Status Code: 200")}, "status": 4})}
+            return response
         elif success == False:
             print("from else", success)
             message = message
@@ -320,8 +319,7 @@ def pdf_extraction(event=None, context=None):
             os.chdir('..')
             shutil.rmtree('random_temp', ignore_errors=True)
             os.chdir('..')
-            return {'success': success, 'body': json.dumps(
-                {"message": message, "error ": {'msg': str("Status Code: 404")}, "status": 5})}
+            return response
 
 
 
@@ -364,8 +362,7 @@ def pdf_extraction(event=None, context=None):
 
         os.chdir('..')
 
-        return {'success': success, 'body': json.dumps(
-                {"message": message, "error ": {'msg': str("Status Code: 404")}, "status": 6})}
+        return response
 
 # trail = pdf_extraction(weekly_reader_1="Weekly Literature Hits PDF-senkoro.pdf", source_document="Senkoro E_.pdf")
 # print(trail)
