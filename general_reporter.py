@@ -7,8 +7,8 @@ import json
 from fastapi import HTTPException
 from metapub import PubMedFetcher,config
 
-# weekly_reader = PdfReader('Weekly Literature Hits PDF_plante_khaldy.pdf')
-# source_file_reader = PdfReader('Plante MM.pdf')
+# weekly_reader = PdfReader('Weekly literature Hits PDF-kadekaru.pdf')
+# source_file_reader = PdfReader('Kadekaru R..pdf')
 # # weekly_reader = PdfReader('Weekly literature hits PDF.pdf')
 # weekly_reader_num_pages = len(weekly_reader.pages)
 #
@@ -420,7 +420,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
             # print("Expedited report:", expedited_report)
 
             # First sender
-            general_information["first_Sender"] = "Other"
+            #general_information["first_sender"] = "Other"
             # print("First sender:", first_sender)
 
             # Nullification
@@ -672,7 +672,10 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
                 # Details of primary author
                 # Find text after 'Affiliations'
-                affiliation_text = text_up_to_doi.split('Affiliations')[1]
+                if len(text_up_to_doi.split('Affiliations')) >= 2:
+                    affiliation_text = text_up_to_doi.split('Affiliations')[1]
+                else:
+                    affiliation_text = text_up_to_doi.split('Affiliations')[0]
 
                 # Split the text at occurrences of '2'
                 split_text = affiliation_text.split('2')
@@ -700,7 +703,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                             not in
                             ['correspondence', 'text', 'contact', 'author', 'email', '*']
                             and
-                            token != email
+                            token.text != email
                     ):
                         if token.text.strip():
                             addresses.append(token.text)
@@ -726,7 +729,11 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 with open(json_file, encoding='utf-8-sig') as file:
                     country_regexes = json.load(file)
                 pin_codes = []
-                affiliation_text = text_up_to_doi.split('Affiliations')[1]
+
+                if len(text_up_to_doi.split('Affiliations')) >= 2:
+                    affiliation_text = text_up_to_doi.split('Affiliations')[1]
+                else:
+                    affiliation_text = text_up_to_doi.split('Affiliations')[0]
 
                 # Split the text at occurrences of '2'
                 split_text = affiliation_text.split('2')
@@ -761,13 +768,13 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 # Email pattern
                 email_pattern = r'\b[A-Za-z0-9._%+-]+ ?@ ?[A-Za-z0-9.-]+ ?\.[A-Z|a-z]{2,}\b'
                 # Find email addresses in the text
-                email_address = re.findall(email_pattern, text_up_to_doi)
-                if email_address:
-                    local_part = email_address[0].split('@')
+                email_address_1 = re.findall(email_pattern, text_up_to_doi)
+                if email_address_1:
+                    local_part = email_address_1[0].split('@')
                     # Check if the author's name is present in the local part
                     author = author_name  # Replace with the author's name you're checking for
                     if author in local_part:
-                        email_address = email_address
+                        email_address = ''.join(email_address_1)
                 # print("primary Author email:", email_address)
 
                 # Fax number
@@ -787,11 +794,11 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                         numbers_with_plus_in_brackets = re.findall(r'\(\+\d+\)-\d+', line)
                         numbers_with_plus_in_brackets_and_space = re.findall(r'\(\+\d+\) \d+', line)
                         if numbers_with_plus:
-                            fax_number = numbers_with_plus
+                            fax_number = ''.join(numbers_with_plus)
                         elif numbers_with_plus_in_brackets:
-                            fax_number = numbers_with_plus_in_brackets
+                            fax_number = ''.join(numbers_with_plus_in_brackets)
                         elif numbers_with_plus_in_brackets_and_space:
-                            fax_number = numbers_with_plus_in_brackets_and_space
+                            fax_number = ''.join(numbers_with_plus_in_brackets_and_space)
 
                 # print("Primary Author Fax Number", fax_number)
 
@@ -1083,10 +1090,11 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 email = re.findall(email_pattern, correspondence_text)
 
                 if email:
-                    email_address = email[0]
+                    email_address = ''.join(email[0])
                     print("Email Address:", email[0])
                 else:
-                    email_address = re.findall(email_pattern, all_text)
+                    email_address_1 = re.findall(email_pattern, all_text)
+                    email_address = ''.join(email_address_1)
                     print("Email Address:", email_address)
 
                 # Fax number
@@ -1106,11 +1114,11 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                         numbers_with_plus_in_brackets = re.findall(r'\(\+\d+\)-\d+', line)
                         numbers_with_plus_in_brackets_and_space = re.findall(r'\(\+\d+\) \d+', line)
                         if numbers_with_plus:
-                            fax_number = numbers_with_plus
+                            fax_number = ''.join(numbers_with_plus)
                         elif numbers_with_plus_in_brackets:
-                            fax_number = numbers_with_plus_in_brackets
+                            fax_number = ''.join(numbers_with_plus_in_brackets)
                         elif numbers_with_plus_in_brackets_and_space:
-                            fax_number = numbers_with_plus_in_brackets_and_space
+                            fax_number = ''.join(numbers_with_plus_in_brackets_and_space)
                 print("Fax Number:", fax_number)
 
                 # Alternate number
@@ -1344,15 +1352,16 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
                 email_pattern = r'\b[A-Za-z0-9._%+-]+ ?@ ?[A-Za-z0-9.-]+ ?\.[A-Z|a-z]{2,}\b'
                 # Find email addresses in the text
-                email_address = re.findall(email_pattern, text_up_to_doi)
-                print("email_address", email_address)
-                if email_address:
-                    local_part = email_address[0].split('@')
+                email_address_1 = re.findall(email_pattern, text_up_to_doi)
+
+                print("email_address", email_address_1)
+                if email_address_1:
+                    local_part = email_address_1[0].split('@')
                     # Check if the author's name is present in the local part
                     author = author_name
                     print("primary author_name is", author)  # Replace with the author's name you're checking for
                     if author in local_part:
-                        email_address = email_address
+                        email_address = ''.join(email_address_1)
                 print("primary Author email:", email_address)
 
                 # Fax number
@@ -1372,11 +1381,11 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                         numbers_with_plus_in_brackets = re.findall(r'\(\+\d+\)-\d+', line)
                         numbers_with_plus_in_brackets_and_space = re.findall(r'\(\+\d+\) \d+', line)
                         if numbers_with_plus:
-                            fax_number = numbers_with_plus
+                            fax_number = ''.join(numbers_with_plus)
                         elif numbers_with_plus_in_brackets:
-                            fax_number = numbers_with_plus_in_brackets
+                            fax_number = ''.join(numbers_with_plus_in_brackets)
                         elif numbers_with_plus_in_brackets_and_space:
-                            fax_number = numbers_with_plus_in_brackets_and_space
+                            fax_number = ''.join(numbers_with_plus_in_brackets_and_space)
 
                 # print("Primary Author Fax Number", fax_number)
 
@@ -1642,12 +1651,12 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 # Find email addresses in the text
                 email = re.findall(email_pattern, correspondence_text)
 
-                email_address_correspondence = email
+                email_address_correspondence = ''.join(email)
                 if email:
                     print("Correspondence Author Email Address:", email_address_correspondence)
                 elif not email:
                     email_address_corr = re.findall(email_pattern, all_text)
-                    email_address_correspondence = email_address_corr[0]
+                    email_address_correspondence = ''.join(email_address_corr[0])
                     # print("Correspondence Author Email address:", email_address_correspondence)
                 else:
                     print("Correspondence Author Email address:", email_address_correspondence)
@@ -1671,11 +1680,11 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                         numbers_with_plus_in_brackets = re.findall(r'\(\+\d+\)-\d+', line)
                         numbers_with_plus_in_brackets_and_space = re.findall(r'\(\+\d+\) \d+', line)
                         if numbers_with_plus:
-                            fax_number_correspondence = numbers_with_plus
+                            fax_number_correspondence = ''.join(numbers_with_plus)
                         elif numbers_with_plus_in_brackets:
-                            fax_number_correspondence = numbers_with_plus_in_brackets
+                            fax_number_correspondence = ''.join(numbers_with_plus_in_brackets)
                         elif numbers_with_plus_in_brackets_and_space:
-                            fax_number_correspondence = numbers_with_plus_in_brackets_and_space
+                            fax_number_correspondence = ''.join(numbers_with_plus_in_brackets_and_space)
 
 
                 # print("Correspondence Author Fax Number:", fax_number_correspondence)

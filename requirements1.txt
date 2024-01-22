@@ -1,6 +1,7 @@
 PyPDF2==3.0.1
 spacy==3.6.1
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.6.0/en_core_web_sm-3.6.0-py3-none-any.whl#sha256=83276fc78a70045627144786b52e1f2728ad5e29e5e43916ec37ea9c26a11212
+en-ner-bc5cdr-md @ https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.3/en_ner_bc5cdr_md-0.5.3.tar.gz#sha256=5fe351539b7a41aa576ae40eb74bb402113ccc1f4b5845d64545f6e2700b1bb3
 pysftp==0.2.9
 pycountry==22.3.5
 selenium==4.16.0

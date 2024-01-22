@@ -7,8 +7,8 @@ import json
 import pandas as pd
 #from parent import mother_llt, all_text, nlp, nlp_1
 
-# weekly_reader = PdfReader('Weekly Literature Hits PDF_plante_khaldy.pdf')
-# source_file_reader = PdfReader('Plante MM.pdf')
+# weekly_reader = PdfReader('Weekly Literature Hits PDF-senkoro.pdf')
+# source_file_reader = PdfReader('Senkoro E_.pdf')
 # # weekly_reader = PdfReader('Weekly literature hits PDF.pdf')
 # weekly_reader_num_pages = len(weekly_reader.pages)
 #
@@ -44,62 +44,117 @@ def get_patient_text(source_text, en_core, bcd5r):
 
     report_to_discussion = ""
     first_three_lines = ""
-    case_keywords = ["Case Presentation", "Case Summary", "Case History", "Case description", "Case Report", "Case"]
+    abstract_keywords = ["Introduction", "Abstract", "INTRODUCTION", "ABSTRACT"]
+    case_keywords = ["Case Presentation", "Case presentation", "Case summary", "Case history", "Case Summary",
+                     "Case History", "Case description", "Case Report","Case",
+                     "Case report", "CASE", "CASE REPORT", "CASE DESCRIPTION", "CASE PRESENTATION", "CASE HISTORY",
+                     "CASE SUMMARY"]
     found_case_type = None
     text_after_case_type = ""
+    all_reaction_information = []
+    abstract_to_end = ""
+    found_start_line_second = ""
+    abstract_to_end_first = ""
     doc = nlp_1(all_text)
     for keyword in case_keywords:
         if keyword in all_text:
+            # print("keyword is presnet")
             found_case_type = keyword
             break
     if "An official website of the United States government" in all_text:
         word_index = doc.text.find("Affiliations")
         word_index_keyword = doc.text.find("Keywords")
-        print(word_index_keyword)
+        # print(word_index_keyword)
         extracted_text = doc.text[word_index:word_index_keyword]
         # text_lines = text_after_case_type.split('\n')
         first_three_lines = extracted_text
         report_to_discussion = extracted_text
-    elif found_case_type == "Case Report" or found_case_type == "Case report":
-        print("yes")
-        search_term = ["Case Report", "Case report"]
+    else:
+        abstract_terms = ["Introduction", "Abstract", "INTRODUCTION", "ABSTRACT"]
         count = 0
         found_start_line = -1
         end_line = -1
+        searching = ""
         for i, line in enumerate(all_text.split('\n')):
-            for searching in search_term:
+            for searching in abstract_terms:
                 if searching in line:
+                    # print("yes abstract keyword is present")
                     count += 1
-                    if count == 2:
-                        found_start_line = i
+                    found_start_line = i
                     break
+        print("found_start_line is", found_start_line)
+        # print("count is", count)
+        if count > 0 and found_start_line != -1:
+            # print("second yes")
+            # Extract the found line and the subsequent 7 lines
+            extracted_lines_from_abstract = all_text.split('\n')[found_start_line + len(searching):]
+            # print(extracted_lines)
+            abstract_to_end_first = '\n'.join(extracted_lines_from_abstract)
+            print("abstract to end", abstract_to_end_first)
+        count_2 = 0
+        for i, line in enumerate(abstract_to_end_first.split('\n')):
+            for searching in abstract_terms:
+                if searching in line:
+                    # print("yes abstract keyword is present second time", line)
+                    count_2 += 1
+                    found_start_line_second = i
+                    break
+        # print("found_start_line second time is", found_start_line_second)
+        # print("count is", count)
+        if count_2 > 0 and found_start_line_second != -1:
+            # print("second yes")
+            # Extract the found line and the subsequent 7 lines
+            extracted_lines_from_abstract = abstract_to_end_first.split('\n')[found_start_line:]
+            # print(extracted_lines)
+            abstract_to_end = '\n'.join(extracted_lines_from_abstract)
+            print("abstract to end from count 2", abstract_to_end)
+        else:
+            abstract_to_end = abstract_to_end_first
+
+        # print("abstract_to_end", abstract_to_end)
+
+        case_keywords = ["Case Presentation", "Case presentation", "Case summary", "Case history", "Case Summary",
+                         "Case History", "Case description", "Case Report","Case",
+                         "Case report", "CASE", "CASE REPORT", "CASE DESCRIPTION", "CASE PRESENTATION", "CASE HISTORY",
+                         "CASE SUMMARY"]
+        found_case_type = None
+        count_for_case = 0
+        found_start_line_for_case = -1
+        end_line = -1
+        print("split of ab_to_end*****", abstract_to_end.split('\n'))
+        for i, line in enumerate(abstract_to_end.split("\n")):
+            for searching in case_keywords:
+                if searching in line:
+                    print("Yes case keyword is present")
+                    print("line is", line)
+                    print("case keyword is", searching)
+
+                    count_for_case += 1
+
+                    if count_for_case == 1:
+                        found_start_line_for_case = i
+                    break
+            # Stop searching if a keyword is found in the line
 
             # Assuming you want to store the line index where "Case Report" is found
-            if "Discussion" in line or "Conclusions" in line:
+            if any(keyword in line for keyword in ["Discussion", "Conclusion", "DISCUSSION", "CONCLUSION"]):
+                print("line", line)
                 print("i", i)
                 end_line = i
-        print("found_start_line is", found_start_line)
-        if count > 0 and found_start_line != -1:
+                break
+
+        print("found_start_line_for_case is", found_start_line_for_case)
+
+        # print("count is", count)
+        if count_for_case > 0 and found_start_line_for_case != -1:
+            print("second yes")
             # Extract the found line and the subsequent 7 lines
-            extracted_lines = all_text.split('\n')[found_start_line:end_line]
+            extracted_lines = abstract_to_end.split('\n')[found_start_line_for_case:(end_line + 1)]
+            # print(extracted_lines)
             report_to_discussion = '\n'.join(extracted_lines)
+            print("report to discussion is", report_to_discussion)
             first_three_lines_split = report_to_discussion.split("\n")[:10]
             first_three_lines = '\n'.join(first_three_lines_split)
-        # if count > 0:
-        #     extracted_text = doc.text[word_index:]
-        #     text_lines = extracted_text.split('\n')
-        #     first_three_lines = '\n'.join(text_lines[:8])
-    else:
-        # print("Found case type:", found_case_type)
-        word_index = doc.text.find(found_case_type)
-        end_word_index = doc.text.find("Discussion")
-        # Extract text after the specific word
-        extracted_text = doc.text[word_index + len(found_case_type):  end_word_index]
-        text_after_case_type = all_text.split(found_case_type, 1)[-1]
-        text_lines = extracted_text.split('\n')
-        report_to_discussion = '\n'.join(text_lines)
-        first_three_lines_split = report_to_discussion.split("\n")[:10]
-        first_three_lines = '\n'.join(first_three_lines_split)
 
     # Extract the first three lines
     # print("from another document:", report_to_discussion)
@@ -115,22 +170,23 @@ def get_patient_text(source_text, en_core, bcd5r):
     middle_name = ""
     last_name = ""
     current_name = ""
-    for token in doc:
-        if token.ent_type_ == "PERSON":
-            current_name += token.text + " "
-        else:
-            if current_name.strip():
-                patient_name += current_name.strip() + " "
-                current_name = ""
+    if 'patient' in first_three_lines.split() and 'named' in first_three_lines.split():
+        for token in doc:
+            if token.ent_type_ == "PERSON":
+                current_name += token.text + " "
+            else:
+                if current_name.strip():
+                    patient_name += current_name.strip() + " "
+                    current_name = ""
 
     # Handle the last name if present
     if current_name.strip():
         patient_name += current_name.strip()
-
     # Remove duplicate names
     patient_name = ' '.join(list(dict.fromkeys(patient_name.split())))
     print(patient_name)
     name_parts = patient_name.split()
+
     num_words = len(name_parts)
     if num_words == 2:
         # If the author name has only 2 words, consider them as first and last names
@@ -629,14 +685,41 @@ def get_patient_text(source_text, en_core, bcd5r):
     death_comments = ""
     text = ""
     death_text = ""
+    death_tet_for_comments =""
+    end_text = ""
     dod = ""
-    lines = report_to_discussion.split("/n")
-    for i, line in enumerate(lines):
-        for keyword in dead_keywords:
-            if keyword in line:
-                start_line = line.find(keyword)
-                text = line[start_line:]
-    death_text += text + "\n"
+    lines = report_to_discussion
+    dead_keywords = ["expired", "died", "dead", "passed away", "demised", "murdered", "lost life"]
+
+    pattern = re.compile(r'\b(?:' + '|'.join(map(re.escape, dead_keywords)) + r')\b', flags=re.IGNORECASE)
+
+    # Search for the keywords in the text
+    matches = pattern.findall(text)
+
+    # Output the matches
+    if matches:
+        for match in matches:
+            print(f"Found match: {match}")
+            for i, line in enumerate(lines.split('\n')):
+                if match in line:
+                    print("Yes, keyword found")
+                    start_line = line.find(match)
+                    text = line[start_line:]
+
+                    next_line_index = i + 1
+                    while next_line_index < len(lines.split('\n')):
+                        if "." in lines.split('\n')[next_line_index]:
+                            print("Yes, '.' is present in the next line")
+                            end_line = lines.split('\n')[next_line_index]
+                            print(end_line)
+                            death_tet_for_comments += text + end_line + "\n"
+                            break
+                        next_line_index += 1
+            death_text += text + "\n"
+    else:
+        print("************not matched*********")
+
+
     # end_line = death_text.find('.')
     # death_comments = death_text[:end_line]
     dod_pattern = re.compile(r'\b(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b')
@@ -653,7 +736,8 @@ def get_patient_text(source_text, en_core, bcd5r):
         if ent.label_ == "DISEASE" and ent.text not in dead_keywords:
             cause_of_death.append(ent.text)
             death_llt.append(ent.text)
-    death_llt_string = ','.join(death_llt)
+    death_llt_set = list(set(death_llt))
+    death_llt_string = ','.join(death_llt_set)
     cause_of_death_string = ','.join(cause_of_death)
     print("Cause of death", cause_of_death_string)
     print("LLT", death_llt_string)
@@ -692,7 +776,9 @@ def get_patient_text(source_text, en_core, bcd5r):
     if "COVID" in autopsy_text:
         autopsy_cause_of_death.append("COVID-19")
         autopsy_llt.append("COVID-19")
-    autopsy_llt_string = ', '.join(autopsy_llt)
+
+    autopsy_llt_set = list(set(autopsy_llt))
+    autopsy_llt_string = ', '.join(autopsy_llt_set)
     autopsy_cause_of_death_string = ', '.join(autopsy_cause_of_death)
     print("Cause of death", autopsy_cause_of_death_string)
     print("LLT", autopsy_llt_string)
@@ -705,7 +791,7 @@ def get_patient_text(source_text, en_core, bcd5r):
     previous_lines = []
     text_before_medicine = ""
     text_after_medicine = ""
-    products = pd.read_excel("/var/task/product_names.xlsx")
+    products = pd.read_excel("product_names.xlsx")
     for line_number, line in enumerate(report_to_discussion.split('\n')):
         for drug in products['product_name']:
             if drug.lower() in line.lower():
@@ -734,6 +820,7 @@ def get_patient_text(source_text, en_core, bcd5r):
     print(text_after_medicine)
 
     medical_history_text = text_before_medicine
+    indication_text_for_response = '\n'.join(medical_history_text.split('\n')[:2])
 
     # Process the text using the loaded model
     doc = nlp(text_before_medicine)
@@ -741,10 +828,10 @@ def get_patient_text(source_text, en_core, bcd5r):
     # Access entities in the processed document
     drugs = set()
     for ent in doc.ents:
-        if ent.label_ == "CHEMICAL":
+        if ent.label_ == "CHEMICAL" and ent.text != "RVD":
             drugs.add(ent.text)
             print("drugs are:", ent.text)
-    drugs_list = list(drugs)
+    drugs_list = list(set(drugs))
     drugs_string = ', '.join(drugs_list)
 
     llt_medical = []
@@ -756,7 +843,7 @@ def get_patient_text(source_text, en_core, bcd5r):
     print("Indication LLT:", llt_medical)
     print("Indication Comment:", text_before_medicine)
 
-    filtered_llt = llt_medical
+    filtered_llt = list(set(llt_medical))
 
     llt_medical_string = ', '.join(filtered_llt)
 
@@ -766,6 +853,7 @@ def get_patient_text(source_text, en_core, bcd5r):
     text_for_indication = ""
     lines = text_before_medicine.split('\n')[-5:]
     indication_text = '\n'.join(lines)
+
     # for i, line in enumerate(lines):
     #     for keyword in indication_keywords:
     #         if keyword in line:
@@ -781,7 +869,8 @@ def get_patient_text(source_text, en_core, bcd5r):
     for ent in doc.ents:
         if ent.label_ == "DISEASE":
             llt_indicators.append(ent.text)
-    llt_indicators_string = ','.join(llt_indicators)
+    llt_indicator_set = list(set(llt_indicators))
+    llt_indicators_string = ','.join(llt_indicator_set)
     print("Indication LLT:", llt_indicators)
     print("Indication Comment:", indication_text)
 
@@ -814,8 +903,9 @@ def get_patient_text(source_text, en_core, bcd5r):
         if ent.label_ == "DISEASE":
             llt_reactions.append(ent.text)
     print("Reaction LLT:", llt_reactions)
+    llt_reactions_set = list(set(llt_reactions))
     llt_reactions_string = ', '.join(llt_reactions)
-    comment_reactions = text_after_medicine
+    comment_reactions = '\n'. join(text_after_medicine.split('/n')[:2])
     print("Reaction Comment:", comment_reactions)
 
     patient = {
@@ -864,19 +954,19 @@ def get_patient_text(source_text, en_core, bcd5r):
             "start_date": start_date,
             "end_date": end_date,
             "continuing": continuing,
-            "llt": llt_medical,
-            "comments": medical_history_text,
+            "llt": llt_medical_string,
+            "comments": indication_text_for_response,
             "family_history": ""
         },
         "past_drug_history": {
-            "name_of_drug": drugs_list,
+            "name_of_drug": drugs_string,
             "active_or_molecules": drugs_string,
             "start_date": start_date_drug,
             "end_date": end_date_drug,
-            "llt_indication": llt_indicators,
+            "llt_indication": llt_indicators_string,
             "llt_indication_medracode": "",
             "llt_indication_version": "",
-            "llt_reaction": llt_reactions,
+            "llt_reaction": llt_reactions_string,
             "llt_reaction_medracode": "",
             "llt_reaction_version": "",
             "comments": comment_reactions,
@@ -889,7 +979,7 @@ def get_patient_text(source_text, en_core, bcd5r):
             "llt_case_of_death": death_llt_string,
             "medra_code": "",
             "medra_version": "",
-            "comment": death_text,
+            "comment": death_tet_for_comments,
             "was_autopsy_done": autopsy,
             "autopsy_cause_of_death": autopsy_cause_of_death_string,
             "llt_autopsy": autopsy_llt_string,
@@ -900,4 +990,5 @@ def get_patient_text(source_text, en_core, bcd5r):
     }
     return patient
 
-#patient_response = get_patient_text(source_text=all_text,en_core=nlp, bcd5r=nlp_1)
+# patient_response = get_patient_text(source_text=all_text,en_core=nlp, bcd5r=nlp_1)
+# print(patient_response)

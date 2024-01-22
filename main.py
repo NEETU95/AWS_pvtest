@@ -3,6 +3,7 @@ from PyPDF2 import PdfReader
 from general_reporter import get_general_reporter
 from patient_tab import get_patient_text
 from parent import get_parent_text
+from events_tab import get_events_tab
 import spacy
 import pysftp
 import os
@@ -25,8 +26,11 @@ def pdf_extraction(event=None, context=None):
     pdf_info = str(data_event['pdf_info'])
     # shutil.copy2('*', '/tmp')
 
+    destination_directory = 'random_temp'
     os.chdir('/tmp')
-    os.makedirs('random_temp', exist_ok=True)  ### changing directory
+    if not os.path.exists(destination_directory):
+        os.makedirs(destination_directory)
+    # os.makedirs('random_temp', exist_ok=True)  ### changing directory
     os.chdir('random_temp')
     try:
         shutil.copy2('/var/task/product_names.xlsx', '/tmp/random_temp')
@@ -40,8 +44,20 @@ def pdf_extraction(event=None, context=None):
         shutil.copy2('/var/task/postal-codes.json', '/tmp/random_temp')
     except shutil.SameFileError:
         pass
+    try:
+        shutil.copytree('/var/task/custom_ner_model_with_disease', '/tmp/random_temp')
+    except FileExistsError:
+        # Handle if the destination directory already exists
+        pass
+
+    try:
+        shutil.copytree('/var/task/custom_ner_model_with_disease_1', '/tmp/random_temp')
+    except FileExistsError:
+        # Handle if the destination directory already exists
+        pass
     success = True
     message = ""
+    exception_values = True
     try:
         try:
             cnopts = pysftp.CnOpts()
@@ -63,6 +79,8 @@ def pdf_extraction(event=None, context=None):
             print(f"Exception occurred: {str(e)}")
             success = False
             message = str(e)
+            weekly_reader_1 = ""
+            source_document = ""
             raise Exception(f"Exception occurred: {str(e)}")
 
         weekly_reader = PdfReader(weekly_reader_1)
@@ -76,7 +94,12 @@ def pdf_extraction(event=None, context=None):
         weekly_text = ""
         all_text = ""
         nlp = spacy.load("en_core_web_sm")
-        nlp_1 = spacy.load("/var/task/en-ner-bc5cdr-md")
+        try:
+            nlp_1 = spacy.load("en_ner_bc5cdr_md")
+        except Exception:
+            success = False
+            message = "Not loaded bcd5r model"
+            raise Exception("BCD5R model is not loaded")
         # Loop through all pages and extract text
         first_page = source_file_reader.pages[0]
         first_page_text = first_page.extract_text()
@@ -271,98 +294,124 @@ def pdf_extraction(event=None, context=None):
             print("success",success)
             print("message", message)
             raise Exception(f"Exception occurred from parent_tab: {str(e)}")
+        try:
+            events_extraction = get_events_tab(source_text=all_text, country=country_verify)
+        except Exception as e:
+            print(f"Exception occurred from events_tab: {str(e)}")
+            success = False
+            message = f"Exception occurred from events_tab: {str(e)}"
+            print("success", success)
+            print("message", message)
+            raise Exception(f"Exception occurred from events_tab: {str(e)}")
 
-        print("success above",success)
-        if success == True:
-            print("entered into success")
-            message = "extracted succesfully"
-            response_for_integration = {
-                "success": True,
-                "message": "Extracted successfully",
-                "first_file_name": weekly_reader_1,
-                "second_file_name": source_document,
-                "general_information": general_extraction,
-                "reporter": reporter_extraction,
-                "patient": patient_extraction,
-                "parent": parent_extraction
-            }
-            print("response of NLP model", json.dumps(response_for_integration))
+        print("success above", success)
 
-            url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
-            print(
-                "=--------------------------------------------------------------------------------------------------------")
-            # Send the POST request with JSON data
-            response = requests.post(url, json=response_for_integration)
-            json_response_from_api = response.json()
-            print("*" * 50)
-            os.chdir('..')
-            shutil.rmtree('random_temp', ignore_errors=True)
-            os.chdir('..')
-            return response
-        elif success == False:
-            print("from else", success)
-            message = message
-            response = {
-                "success": success,
-                "message": message,
-                "first_file_name": weekly_reader_1,
-                "second_file_name": source_document
-            }
+        try:
+            if success == True:
+                exception_values = False
+                print("entered into success")
+                message = "extracted succesfully"
+                response_for_integration = {
+                    "success": True,
+                    "message": "Extracted successfully",
+                    "first_file_name": weekly_reader_1,
+                    "second_file_name": source_document,
+                    "general_information": general_extraction,
+                    "reporter": reporter_extraction,
+                    "patient": patient_extraction,
+                    "parent": parent_extraction,
+                    "reaction_event":events_extraction
+                }
+                print(" java create case api response of NLP model", json.dumps(response_for_integration))
+
+
+                print(
+                    "=--------------------------------------------------------------------------------------------------------")
+                # Send the POST request with JSON data
+
+
+                response_from_my_api = {
+                    "success": success,
+                    "message": message,
+                    "first_file_name": weekly_reader_1,
+                    "second_file_name": source_document
+                }
+
+                # json_response_from_api = response.json()
+                # print("Aws response", response_from_my_api)
+                # print("*" * 50)
+
+                os.chdir('..')
+                shutil.rmtree('random_temp', ignore_errors=True)
+                os.chdir('..')
+                url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
+                response = requests.post(url, json=response_for_integration)
+
+                print("response after hitting create case ai url", response)
+
+                return response_from_my_api
+            elif success == False:
+                exception_values = False
+                print("from else", success)
+                message = message
+                response = {
+                    "success": success,
+                    "message": message,
+                    "first_file_name": weekly_reader_1,
+                    "second_file_name": source_document
+                }
+                print(response)
+                url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
+                print(
+                    "=--------------------------------------------------------------------------------------------------------")
+
+                # response_from_api = requests.post(url, json=response)
+                # print("*" * 50)
+                # # print(response_from_api.text)
+                # json_response_from_api = response_from_api.json()
+                os.chdir('..')
+                shutil.rmtree('random_temp', ignore_errors=True)
+                os.chdir('..')
+
+                return response
+        except Exception as e:
+            success = False
+            message = str(e)
+            raise Exception(f"Exception occurred after extraction of details: {str(e)}")
+
+
+
+
+
+    except Exception as e:
+        response = {
+            "success": False,
+            "message": message,
+            "first_file_name": weekly_reader_1,
+            "second_file_name": source_document
+        }
+
+        if exception_values == True:
+            print("Exception block executed with exception_values True")
             print(response)
             url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
             print(
                 "=--------------------------------------------------------------------------------------------------------")
             response_from_api = requests.post(url, json=response)
             print("*" * 50)
-            # print(response_from_api.text)
-            json_response_from_api = response_from_api.json()
+            print(response_from_api.text)
+            # json_response_from_api = response_from_api.json()
+
             os.chdir('..')
+
             shutil.rmtree('random_temp', ignore_errors=True)
+
             os.chdir('..')
+
             return response
-
-
-
-
-        # Check the response status code
-        if json_response_from_api['success'] == 'true':
-            # Request was successful
-            print("API request successful.")
-            # print("Status Code:", json_response_from_api['statusCode'])
-            # print("Response Headers:", response.headers)
-
-
         else:
-            # Request failed
-
-            print(
-                f"API request failed with status code {json_response_from_api['success']}: {json_response_from_api['message']}")
-            # print(response.text)
-
-    except Exception as e:
-        response = {
-            "success": success,
-            "message": message,
-            "first_file_name": weekly_reader_1,
-            "second_file_name": source_document
-        }
-        print("exception block executued")
-        print(response)
-        url = "https://demo1.topiatech.co.uk/PV/createCaseAI"
-        print(
-            "=--------------------------------------------------------------------------------------------------------")
-        response_from_api = requests.post(url, json=response)
-        print("*" * 50)
-        print(response_from_api.text)
-        # json_response_from_api = response_from_api.json()
-
-        os.chdir('..')
-
-        shutil.rmtree('random_temp', ignore_errors=True)
-
-        os.chdir('..')
-
-        return response
+            print("Exception values False executed")
+            return response
 
 # trail = pdf_extraction(weekly_reader_1="Weekly Literature Hits PDF-senkoro.pdf", source_document="Senkoro E_.pdf")
 # print(trail)

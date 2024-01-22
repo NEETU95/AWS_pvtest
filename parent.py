@@ -33,85 +33,118 @@ def get_parent_text(source_text, en_core, bcd5r):
 
     report_to_discussion = ""
     first_three_lines = ""
-    case_keywords = ["Case Presentation", "Case Summary", "Case History", "Case description", "Case Report", "Case"]
+    abstract_keywords = ["Introduction", "Abstract", "INTRODUCTION", "ABSTRACT"]
+    case_keywords = ["Case Presentation", "Case presentation", "Case summary", "Case history", "Case Summary",
+                     "Case History", "Case description", "Case Report","Case",
+                     "Case report", "CASE", "CASE REPORT", "CASE DESCRIPTION", "CASE PRESENTATION", "CASE HISTORY",
+                     "CASE SUMMARY"]
     found_case_type = None
     text_after_case_type = ""
-
-    doc = nlp(all_text)
+    all_reaction_information = []
+    abstract_to_end = ""
+    found_start_line_second = ""
+    abstract_to_end_first = ""
+    doc = nlp_1(all_text)
     for keyword in case_keywords:
         if keyword in all_text:
+            # print("keyword is presnet")
             found_case_type = keyword
             break
     if "An official website of the United States government" in all_text:
         word_index = doc.text.find("Affiliations")
         word_index_keyword = doc.text.find("Keywords")
-        #print(word_index_keyword)
+        # print(word_index_keyword)
         extracted_text = doc.text[word_index:word_index_keyword]
         # text_lines = text_after_case_type.split('\n')
         first_three_lines = extracted_text
         report_to_discussion = extracted_text
-    elif found_case_type == "Case Report" or found_case_type == "Case report":
-        print("yes")
-        search_term = ["Case Report", "Case report"]
+    else:
+        abstract_terms = ["Introduction", "Abstract", "INTRODUCTION", "ABSTRACT"]
         count = 0
         found_start_line = -1
-        second_report_to_discussion =""
         end_line = -1
+        searching = ""
         for i, line in enumerate(all_text.split('\n')):
-            for searching in search_term:
+            for searching in abstract_terms:
                 if searching in line:
-                    count += 1
-                    if count == 2:
-                        found_start_line = i
-                    break
-
-            # Assuming you want to store the line index where "Case Report" is found
-            if "Discussion" in line or "Conclusions" in line:
-                print("i", i)
-                end_line = i
-        print("found_start_line is", found_start_line)
-        #print("count is", count)
-        if count > 0 and found_start_line != -1:
-            # Extract the found line and the subsequent 7 lines
-            extracted_lines = all_text.split('\n')[(found_start_line + 1):end_line]
-
-            #print(found_start_line)
-            #print(extracted_lines)
-            report_to_discussion = '\n'.join(extracted_lines)
-            #print("report from 1", report_to_discussion)
-            for i, line in enumerate(report_to_discussion.split('\n')):
-                if "Case" and "Report" in line:
+                    # print("yes abstract keyword is present")
                     count += 1
                     found_start_line = i
-            if count > 1:
-                extracted_lines = report_to_discussion.split('\n')[found_start_line:end_line]
+                    break
+        print("found_start_line is", found_start_line)
+        # print("count is", count)
+        if count > 0 and found_start_line != -1:
+            # print("second yes")
+            # Extract the found line and the subsequent 7 lines
+            extracted_lines_from_abstract = all_text.split('\n')[found_start_line + len(searching):]
+            # print(extracted_lines)
+            abstract_to_end_first = '\n'.join(extracted_lines_from_abstract)
+            print("abstract to end", abstract_to_end_first)
+        count_2 = 0
+        for i, line in enumerate(abstract_to_end_first.split('\n')):
+            for searching in abstract_terms:
+                if searching in line:
+                    # print("yes abstract keyword is present second time", line)
+                    count_2 += 1
+                    found_start_line_second = i
+                    break
+        # print("found_start_line second time is", found_start_line_second)
+        # print("count is", count)
+        if count_2 > 0 and found_start_line_second != -1:
+            # print("second yes")
+            # Extract the found line and the subsequent 7 lines
+            extracted_lines_from_abstract = abstract_to_end_first.split('\n')[found_start_line:]
+            # print(extracted_lines)
+            abstract_to_end = '\n'.join(extracted_lines_from_abstract)
+            print("abstract to end from count 2", abstract_to_end)
+        else:
+            abstract_to_end = abstract_to_end_first
 
-                print("##########f", found_start_line)
-                print("##########", extracted_lines)
-                second_report_to_discussion = '\n'.join(extracted_lines)
-            if second_report_to_discussion:
-                final_text = second_report_to_discussion
-            else:
-                final_text = report_to_discussion
+        # print("abstract_to_end", abstract_to_end)
 
-            print("second count", count)
-            first_three_lines_split = final_text.split("\n")[:10]
+        case_keywords = ["Case Presentation", "Case presentation", "Case summary", "Case history", "Case Summary",
+                         "Case History", "Case description", "Case Report","Case",
+                         "Case report", "CASE", "CASE REPORT", "CASE DESCRIPTION", "CASE PRESENTATION", "CASE HISTORY",
+                         "CASE SUMMARY"]
+        found_case_type = None
+        count_for_case = 0
+        found_start_line_for_case = -1
+        end_line = -1
+        print("split of ab_to_end*****", abstract_to_end.split('\n'))
+        for i, line in enumerate(abstract_to_end.split("\n")):
+            for searching in case_keywords:
+                if searching in line:
+                    print("Yes case keyword is present")
+                    print("line is", line)
+                    print("case keyword is", searching)
+
+                    count_for_case += 1
+
+                    if count_for_case == 1:
+                        found_start_line_for_case = i
+
+                    break
+            # Stop searching if a keyword is found in the line
+
+            # Assuming you want to store the line index where "Case Report" is found
+            if any(keyword in line for keyword in ["Discussion", "Conclusion", "DISCUSSION", "CONCLUSION"]):
+                print("line", line)
+                print("i", i)
+                end_line = i
+                break
+
+        print("found_start_line_for_case is", found_start_line_for_case)
+
+        # print("count is", count)
+        if count_for_case > 0 and found_start_line_for_case != -1:
+            print("second yes")
+            # Extract the found line and the subsequent 7 lines
+            extracted_lines = abstract_to_end.split('\n')[found_start_line_for_case:(end_line + 1)]
+            # print(extracted_lines)
+            report_to_discussion = '\n'.join(extracted_lines)
+            print("report to discussion is", report_to_discussion)
+            first_three_lines_split = report_to_discussion.split("\n")[:10]
             first_three_lines = '\n'.join(first_three_lines_split)
-        # if count > 0:
-        #     extracted_text = doc.text[word_index:]
-        #     text_lines = extracted_text.split('\n')
-        #     first_three_lines = '\n'.join(text_lines[:8])
-    else:
-        # print("Found case type:", found_case_type)
-        word_index = doc.text.find(found_case_type)
-        end_word_index = doc.text.find("Discussion")
-        # Extract text after the specific word
-        extracted_text = doc.text[word_index + len(found_case_type):  end_word_index]
-        text_after_case_type = all_text.split(found_case_type, 1)[-1]
-        text_lines = extracted_text.split('\n')
-        report_to_discussion = '\n'.join(text_lines)
-        first_three_lines_split = report_to_discussion.split("\n")[:10]
-        first_three_lines = '\n'.join(first_three_lines_split)
 
     # Extract the first three lines
     # print("from another document:", report_to_discussion)
@@ -150,6 +183,7 @@ def get_parent_text(source_text, en_core, bcd5r):
     mother_last_name = ""
     initials = ""
     mother_llt = []
+    mother_llt_string = ""
     mother_age = ""
     sex = ""
     time_unit = ""
@@ -177,6 +211,7 @@ def get_parent_text(source_text, en_core, bcd5r):
     drug_name = ""
     llt_reactions = []
     reaction_comment = ""
+    drug_name_string = ""
     start_line = None
     mother_father_keyword = ""
     cleaned_comments = ""
@@ -972,12 +1007,12 @@ def get_parent_text(source_text, en_core, bcd5r):
             "start_date": start_date,
             "end_date": end_date,
             "continuing": continuing,
-            "llt": mother_llt,
+            "llt": mother_llt_string,
             "comments": cleaned_comments
         },
         "parent_past_drug_history": {
-            "name_of_drug": drug_name,
-            "active_or_molecules": drug_name,
+            "name_of_drug": drug_name_string,
+            "active_or_molecules": drug_name_string,
             "start_date": "",
             "end_date": "",
             "llt_indication": llt_indicators_string,
