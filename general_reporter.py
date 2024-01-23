@@ -41,7 +41,7 @@ class CustomHTTPException(Exception):
 def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_page):
     try:
         all_text = source_text
-        print(all_text)
+        # print(all_text)
         nlp = en_core
         pmid_pattern = re.compile(r'\b\d{8}\b')  # Assumes PMIDs are 8-digit numbers
         first_page_text = first_page
@@ -72,7 +72,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
         weekly_doc = nlp(weekly_text)
         doc = nlp(all_text)
         title_of_page = ""
-        print("title", title_of_page)
+        # print("title", title_of_page)
 
         title_from_literature = ""
         author_name = " "
@@ -97,7 +97,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
             for i, line in enumerate(all_text.split("\n")):
                 if "DOI:" in line or "doi:" in line:
-                    print("doi is in line", line)
+                    # print("doi is in line", line)
                     if i + 1 < len(all_text.split('\n')):
                         text_up_to_doi_for_author = line
                         # print("text upto doi author", text_up_to_doi_for_author)
@@ -105,17 +105,17 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                         lowercase_text_doi_for_author = text_up_to_doi_for_author.lower()
                         index_doi = lowercase_text_doi_for_author.find('doi:')
                         doi_raw = text_up_to_doi_for_author[index_doi + len('doi:'):].strip()
-                        print("doi_raw is", doi_raw)
+                        # print("doi_raw is", doi_raw)
                         doi = re.sub(r'[^\x00-\x7F]+', '', doi_raw)
                         doi_found = True
-                        print("doi", doi)
+                        # print("doi", doi)
                         break
                 else:
                     https_index = all_text.find("http")
 
                     # If "https" is found, proceed to extract DOI
                     if https_index != -1:
-                        print("into https index")
+                        # print("into https index")
                         # Extract the substring starting from "https"
                         # Extract the substring starting from "https"
                         substring = all_text[https_index:]
@@ -130,51 +130,50 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                         matches = doi_pattern.findall(all_text)
 
                         # Print the matches
-                        for match in matches:
-                            print("Found DOI URL:", match)
+
 
                         # Check if any URLs were found
                         if matches:
-                            print("yes", matches)
+                            # print("yes", matches)
                             # Extract the text before the URL
                             url_parts = matches[0].split('/')
                             doi_number = '/'.join(url_parts[3:])
                             doi = doi_number
-                            print(doi_number)
+                            # print(doi_number)
 
                         doi_found = True
-                        print("doi", doi)
+                        # print("doi", doi)
             if not doi:
                 for i, line in enumerate(all_text.split("\n")):
                     if "DOI:" in line or "doi:" in line:
-                        print("yupp")
+                        # print("yupp")
                         if i + 1 < len(all_text.split('\n')):
-                            print("superr")
+                            # print("superr")
                             next_line = all_text.split('\n')[i + 1]
-                            print(f"Next line {i + 2}: {next_line}")
+                            # print(f"Next line {i + 2}: {next_line}")
                             text_up_to_doi_for_author = line + ' ' + next_line
                             # print("text upto doi author", text_up_to_doi_for_author)
                             affiliations = text_up_to_doi_for_author.split("\n")
                             lowercase_text_doi_for_author = text_up_to_doi_for_author.lower()
                             index_doi = lowercase_text_doi_for_author.find('doi:')
                             doi_raw = text_up_to_doi_for_author[index_doi + len('doi:'):].strip()
-                            print("doi_raw is", doi_raw)
+                            # print("doi_raw is", doi_raw)
                             doi = re.sub(r'[^\x00-\x7F]+', '', doi_raw)
                             doi_found = True
-                            print("doi", doi)
+                            # print("doi", doi)
                             break
             if doi:
                 try:
-                    print("yes into pubmed")
+                    # print("yes into pubmed")
                     fetch = PubMedFetcher()
-                    print(fetch)
-                    print("again", doi)
+                    # print(fetch)
+                    # print("again", doi)
 
                     pmid = fetch.pmids_for_query(doi)
                     article = fetch.article_by_pmid(pmid)
                     title_of_page = article.title
                     # ... (other attribute or method access)
-                    print("title from pubmed", title_of_page)
+                    # print("title from pubmed", title_of_page)
 
                     # print("article is", article)
                     author = article.authors[0]
@@ -192,17 +191,17 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
                 # except Exception as e:
             #     raise HTTPException(status_code=e.sta, detail="Error raised from selenium browser")
-        print('1')
+        # print('1')
 
         # getting title from literature
-        print('6')
+        # print('6')
         if title_of_page and len(title_of_page.split()) > 2:
-            print(title_of_page.split())
-            print('7')
+            # print(title_of_page.split())
+            # print('7')
             # print('title is', title_of_page)
             if title_of_page.split()[0] and title_of_page.split()[1] and title_of_page.split()[2] in weekly_doc.text:
                 weekly_split = weekly_text.split('\n')
-                print('8')
+                # print('8')
                 # print(weekly_split)
                 for i, line in enumerate(weekly_split):
                     # print(line)
@@ -219,7 +218,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                         # print('line_index', line_index)
                         extracted_text = '\n'.join(weekly_split[line_index + 1:])
                         # print('extracted_text', extracted_text)
-                        print('10')
+                        # print('10')
                         break
                 # word_to_find = title_of_page.split()[-1]
                 #
@@ -233,7 +232,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 # Initialize variables to capture the author and their name
                 author_line = None
                 text_up_to_affiliations = ""
-                print('9')
+                # print('9')
                 for line in text_lines:
                     if "Affiliations" in line:
                         break  # Stop when the line containing "DOI:" is found
@@ -253,7 +252,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                         first_author_name = author_name_before_1
                         author_name = re.sub(r'\d', '', first_author_name)
                         # print(author_name)
-                print('10')
+                # print('10')
 
                 # for i, line in enumerate(text_lines):
                 #     if "Author" in line or "Authors" in line:
@@ -302,31 +301,25 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 if 'Sent on' in line:
                     sent_line = line
                     break
-            try:
-                if sent_line:
-                    # Split the line at the comma and get text after the comma
-                    split_text = sent_line.split(',')
-                    if len(split_text) > 1:
-                        text_after_comma = split_text[1].strip()
-                        parsed_date = pd.to_datetime(text_after_comma, format='%Y %B %d')
-                        # Format the date in the desired format
-                        general_information["initial_receipt_date"] = parsed_date.strftime('%d/%m/%Y')
 
-                        # print("Initial Receipt Date:", general_information["initial_receipt_date"])
-                    else:
-                        print("can't change date")
+            if sent_line:
+                # Split the line at the comma and get text after the comma
+                split_text = sent_line.split(',')
+                if len(split_text) > 1:
+                    text_after_comma = split_text[1].strip()
+                    parsed_date = pd.to_datetime(text_after_comma, format='%Y %B %d')
+                    # Format the date in the desired format
+                    general_information["initial_receipt_date"] = parsed_date.strftime('%d/%m/%Y')
 
-                else:
-                    print("No 'Sent on' line found in the text.")
+                    # print("Initial Receipt Date:", general_information["initial_receipt_date"])
 
-                # Latest receipt date
-                general_information["latest_receipt_date"] = general_information["initial_receipt_date"]
-                if not general_information["latest_receipt_date"]:
-                    success = False
-                    message = "Latest Receipt Date is not Found."
-            except Exception as e:
-                print(e)
-                # Handle validation error (e.g., invalid date format)
+
+            # Latest receipt date
+            general_information["latest_receipt_date"] = general_information["initial_receipt_date"]
+            if not general_information["latest_receipt_date"]:
+                success = False
+                message = "Latest Receipt Date is not Found."
+
 
             # print("Latest Receipt date:", initial_receipt_date)
 
@@ -338,8 +331,8 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
             city = ""
 
             if author_name.lower() in weekly_doc.text.lower():
-                print('author_name', author_name.lower())
-                print('11')
+                # print('author_name', author_name.lower())
+                # print('11')
                 # Find the index of the specific word
                 word_index = weekly_doc.text.find(author_name)
 
@@ -348,7 +341,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 # Iterate through the lines
                 for line in extracted_text.split("\n"):
                     # print('line is', line)
-                    print('12')
+                    #print('12')
                     if "DOI:" in line or "doi" in line:
                         break  # Stop when the line containing "DOI:" is found
                     text_up_to_doi += line
@@ -388,8 +381,8 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 # If the city string isn't finished at the end
                 if is_part_of_city != found_countries:
                     found_cities.append(city)
-                print("found_countries", found_countries)
-                print("found_cities", found_cities)
+                #print("found_countries", found_countries)
+                #print("found_cities", found_cities)
                 general_information["country"] = found_countries
 
                 # def get_country_by_state(state_name):
@@ -406,8 +399,8 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
                 # print("Country:", found_countries)
                 # print("city:", found_cities)
-            else:
-                print(f"The specific word '{author_name}' was not found in the text.")
+            #else:
+                #print(f"The specific word '{author_name}' was not found in the text.")
 
             # Medical_confirmation
             medical_keywords = ["yes", "No", "Unk"]
@@ -445,9 +438,9 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 middle_name = name_parts[1]
                 last_name = " ".join(name_parts[2:])
 
-            print("First name:", first_name)
-            print("Middle name:", middle_name)
-            print("Last name:", last_name)
+            #print("First name:", first_name)
+            #print("Middle name:", middle_name)
+            #print("Last name:", last_name)
 
             # Address
 
@@ -525,7 +518,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
             if correspondence_start is not None:
                 for i in range(correspondence_start, len(lines)):
                     if re.search(email_pattern, lines[i]):
-                        print("yes")
+                        #print("yes")
                         correspondence_end = i
                         break
                     elif '@' in lines[i]:
@@ -540,7 +533,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
                     # Print the extracted correspondence section
                 # print("Extracted Correspondence Section:")
-                print("corr text is", correspondence_text)
+                #print("corr text is", correspondence_text)
 
                 # print("###### Reporter tab ######")
 
@@ -548,7 +541,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
             text_up_to_doi = ""
             cleaned_text = ""
             if correspondence_start is None:
-                print("Correspondence Author not found")
+                #print("Correspondence Author not found")
                 # print("Protect Confidentiality: Yes")
                 # print("Primary Reporter: yes")
                 primary_reporter = "yes"
@@ -602,12 +595,12 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                         department = text_up_to_doi[index_department_of:].strip().split(",")[0]
 
                         # Print or process the extracted department text
-                    print("Department:", department)
+                    #print("Department:", department)
                     # doc = nlp(extracted_text)
                     #
                     # for ent in doc.ents:
                     #     if ent.label_ == "ORG":  # Check for entities labeled as organizations
-                    #         print(f"Organization: {ent.text}")
+                    #         #print(f"Organization: {ent.text}")
 
                 # Qualifications
                 qualifications = ["Physician", "Pharmacist", "Other health Professional", "Lawyer",
@@ -759,7 +752,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
                 # Country
                 _country = found_countries
-                print("Primary Author FROM ONE BLOCK Country", found_countries)
+                #print("Primary Author FROM ONE BLOCK Country", found_countries)
 
                 # Phone number
 
@@ -810,7 +803,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 # print("Protect Confidentiality: Yes")
                 # print("Primary Reporter: yes")
                 # print("Correspondence contact: Yes")
-                print("primary author and Correspondence author are same.")
+                #print("primary author and Correspondence author are same.")
                 primary_reporter = "yes"
                 protect_confidentiality = "yes"
                 correspondence_contact = "yes"
@@ -829,7 +822,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                     first_name = name_parts[0]
                     middle_name = name_parts[1]
                     last_name = " ".join(name_parts[2:])
-                print("###### Reporter tab ######")
+                #print("###### Reporter tab ######")
                 # print("First name:", first_name)
                 # print("Middle name:", middle_name)
                 # print("Last name:", last_name)
@@ -845,7 +838,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 department_text = ""
                 if author_name.lower() in weekly_doc.text.lower():
 
-                    print("Entered into condition")
+                    #print("Entered into condition")
                     # Find the index of the specific word
                     word_index = weekly_doc.text.find(author_name)
 
@@ -867,13 +860,13 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                     # print("Department:", department)
                 else:
                     department = department_text
-                    print("Department:", department)
+                    #print("Department:", department)
 
                 # Qualifications
                 qualifications = ["Physician", "Pharmacist", "Other Health Professional", "Lawyer",
                                   "Consumer (or) Other Health Professional"]
                 text_lower = correspondence_text.lower()
-                print("text_lower", text_lower)
+                #print("text_lower", text_lower)
 
                 # Check for keywords related to MBBS or Doctor
                 if (
@@ -903,7 +896,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
                 else:
                     qualification = qualifications[2]
-                print("Qualification:", qualification)
+                #print("Qualification:", qualification)
 
                 # Health care professional
                 health_care_professionals = ['Yes', 'No', 'Unk']
@@ -933,7 +926,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                     reporter_type = reporter_type_keywords[2]
 
                 report_sent_to_regulatory_authority_by_reports = "Unk"
-                print("Report sent to regulatory authority by reports:", report_sent_to_regulatory_authority_by_reports)
+                #print("Report sent to regulatory authority by reports:", report_sent_to_regulatory_authority_by_reports)
 
                 # City
                 corr_city = []
@@ -958,7 +951,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                                     corr_city.append(city)
                                     is_part_of_city = False
                                     city = ""
-                print("Correspondence Author city:", city_)
+                #print("Correspondence Author city:", city_)
                 # If the city string isn't finished at the end
                 if is_part_of_city and not corr_city_from_affiliation:
                     corr_city.append(city)
@@ -1000,7 +993,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                     address_1 = ' '.join(addresses)
                 else:
                     address_1 = ' '.join(addresses)
-                    print("Address:", addresses)
+                    #print("Address:", addresses)
 
                 # Pincode
                 def extract_pin_code(text, country_regexes):
@@ -1054,12 +1047,12 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
                     postal_code = extract_pin_code(desired_text, country_regexes)
 
-                print("Pincode:", postal_code)
+                #print("Pincode:", postal_code)
 
                 # Country
                 if found_countries:
                     _country = found_countries
-                    print("Country from doubt:", found_countries)
+                    #print("Country from doubt:", found_countries)
                 else:
                     affiliations = correspondence_text.split("\n")
                     corr_country = ""
@@ -1077,12 +1070,12 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                             if country.name in affiliation:
                                 corr_country = country.name
                                 break
-                    print("Country from doubt:", corr_country)
+                    #print("Country from doubt:", corr_country)
                     _country = corr_country
 
                 # Phone number
 
-                print("phone number:", phone_number)
+                #print("phone number:", phone_number)
 
                 # Define a regular expression pattern to capture email addresses
                 email_pattern = r'\b[A-Za-z0-9._%+-]+ ?@ ?[A-Za-z0-9.-]+ ?\.[A-Z|a-z]{2,}\b'
@@ -1091,11 +1084,11 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
                 if email:
                     email_address = ''.join(email[0])
-                    print("Email Address:", email[0])
+                    #print("Email Address:", email[0])
                 else:
                     email_address_1 = re.findall(email_pattern, all_text)
                     email_address = ''.join(email_address_1)
-                    print("Email Address:", email_address)
+                    #print("Email Address:", email_address)
 
                 # Fax number
                 lines = correspondence_text.split('\n')
@@ -1119,7 +1112,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                             fax_number = ''.join(numbers_with_plus_in_brackets)
                         elif numbers_with_plus_in_brackets_and_space:
                             fax_number = ''.join(numbers_with_plus_in_brackets_and_space)
-                print("Fax Number:", fax_number)
+                #print("Fax Number:", fax_number)
 
                 # Alternate number
 
@@ -1148,7 +1141,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 fax_number_correspondence = fax_number
                 alternate_phone_correspondence = alternate_phone
             else:
-                print("Primary Author is different to correspondence author")
+                #print("Primary Author is different to correspondence author")
                 # print("Protect Confidentiality: Yes")
                 # print("Primary Reporter: yes")
                 primary_reporter = "yes"
@@ -1191,7 +1184,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 if author_name.lower() in weekly_doc.text.lower():
                     # Find the index of the specific word
                     word_index = weekly_doc.text.find(author_name)
-                    print("13")
+                    #print("13")
                     # Extract text after the specific word
                     extracted_text_after_author = weekly_doc.text[word_index + len(author_name):]
                     # Initialize a variable to store the text up to the DOI line
@@ -1202,7 +1195,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                             break  # Stop when the line containing "DOI:" is found
                         text_up_to_doi += line
                     index_department_of = text_up_to_doi.find('Department of')
-                    print("14")
+                    #print("14")
                     if index_department_of != -1:
                         # Extract text following 'Department of'
                         department = text_up_to_doi[index_department_of:].strip().split(",")[0]
@@ -1214,7 +1207,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 qualifications = ["Physician", "Pharmacist", "Other health Professional", "Lawyer",
                                   "Consumer (or) Other Health Professional"]
                 text_lower = text_up_to_doi.lower().split()
-                print("text_lower is", text_lower)
+                #print("text_lower is", text_lower)
                 # Check for keywords related to MBBS or Doctor
                 if (
                         'mbbs' in text_lower
@@ -1342,8 +1335,8 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
 
                 # Country
                 _country = found_countries
-                print("Primary Author Country", found_countries)
-                print("15", _country)
+                #print("Primary Author Country", found_countries)
+                #print("15", _country)
                 # Phone number
 
                 # print("Primary Author phone number:", phone_number)
@@ -1354,15 +1347,15 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 # Find email addresses in the text
                 email_address_1 = re.findall(email_pattern, text_up_to_doi)
 
-                print("email_address", email_address_1)
+                #print("email_address", email_address_1)
                 if email_address_1:
                     local_part = email_address_1[0].split('@')
                     # Check if the author's name is present in the local part
                     author = author_name
-                    print("primary author_name is", author)  # Replace with the author's name you're checking for
+                    #print("primary author_name is", author)  # Replace with the author's name you're checking for
                     if author in local_part:
                         email_address = ''.join(email_address_1)
-                print("primary Author email:", email_address)
+                #print("primary Author email:", email_address)
 
                 # Fax number
                 lines = desired_text.split('\n')
@@ -1639,7 +1632,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                     country_correspondence = corr_country
                 else:
                     country_correspondence = country_from_corr
-                print("Correspondence Author Country:", country_correspondence)
+                #print("Correspondence Author Country:", country_correspondence)
 
                 # Phone number
 
@@ -1651,15 +1644,15 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                 # Find email addresses in the text
                 email = re.findall(email_pattern, correspondence_text)
 
-                email_address_correspondence = ''.join(email)
+
                 if email:
-                    print("Correspondence Author Email Address:", email_address_correspondence)
+                    email_address_correspondence = ''.join(email)
+                    #print("Correspondence Author Email Address:", email_address_correspondence)
                 elif not email:
                     email_address_corr = re.findall(email_pattern, all_text)
                     email_address_correspondence = ''.join(email_address_corr[0])
                     # print("Correspondence Author Email address:", email_address_correspondence)
-                else:
-                    print("Correspondence Author Email address:", email_address_correspondence)
+
 
                 # Fax-number
 
@@ -1764,7 +1757,7 @@ def get_general_reporter(source_text, en_core, weekly_text_1, meta_data, first_p
                     "pages": pages
                 }
             }
-            print(reporter)
+            #print(reporter)
 
         else:
             raise Exception("Cannot extract content because of title not found")

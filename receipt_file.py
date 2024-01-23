@@ -27,11 +27,11 @@ def get_receipt(en_core, weekly_text_1):
 
             latest_receipt_date = parsed_date.strftime('%d/%m/%Y')
             # print("Initial Receipt Date:", general_information["initial_receipt_date"])
-        else:
-            print("can't change date")
-
-    else:
-        print("No 'Sent on' line found in the text.")
+    #     else:
+    #         print("can't change date")
+    #
+    # else:
+    #     print("No 'Sent on' line found in the text.")
 
     # Latest receipt date
 

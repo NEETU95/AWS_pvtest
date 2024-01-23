@@ -71,7 +71,7 @@ def get_parent_text(source_text, en_core, bcd5r):
                     count += 1
                     found_start_line = i
                     break
-        print("found_start_line is", found_start_line)
+        #print("found_start_line is", found_start_line)
         # print("count is", count)
         if count > 0 and found_start_line != -1:
             # print("second yes")
@@ -79,7 +79,7 @@ def get_parent_text(source_text, en_core, bcd5r):
             extracted_lines_from_abstract = all_text.split('\n')[found_start_line + len(searching):]
             # print(extracted_lines)
             abstract_to_end_first = '\n'.join(extracted_lines_from_abstract)
-            print("abstract to end", abstract_to_end_first)
+            #print("abstract to end", abstract_to_end_first)
         count_2 = 0
         for i, line in enumerate(abstract_to_end_first.split('\n')):
             for searching in abstract_terms:
@@ -96,7 +96,7 @@ def get_parent_text(source_text, en_core, bcd5r):
             extracted_lines_from_abstract = abstract_to_end_first.split('\n')[found_start_line:]
             # print(extracted_lines)
             abstract_to_end = '\n'.join(extracted_lines_from_abstract)
-            print("abstract to end from count 2", abstract_to_end)
+            #print("abstract to end from count 2", abstract_to_end)
         else:
             abstract_to_end = abstract_to_end_first
 
@@ -110,13 +110,13 @@ def get_parent_text(source_text, en_core, bcd5r):
         count_for_case = 0
         found_start_line_for_case = -1
         end_line = -1
-        print("split of ab_to_end*****", abstract_to_end.split('\n'))
+        #print("split of ab_to_end*****", abstract_to_end.split('\n'))
         for i, line in enumerate(abstract_to_end.split("\n")):
             for searching in case_keywords:
                 if searching in line:
-                    print("Yes case keyword is present")
-                    print("line is", line)
-                    print("case keyword is", searching)
+                    #print("Yes case keyword is present")
+                    #print("line is", line)
+                    #print("case keyword is", searching)
 
                     count_for_case += 1
 
@@ -128,21 +128,21 @@ def get_parent_text(source_text, en_core, bcd5r):
 
             # Assuming you want to store the line index where "Case Report" is found
             if any(keyword in line for keyword in ["Discussion", "Conclusion", "DISCUSSION", "CONCLUSION"]):
-                print("line", line)
-                print("i", i)
+                #print("line", line)
+                #print("i", i)
                 end_line = i
                 break
 
-        print("found_start_line_for_case is", found_start_line_for_case)
+        #print("found_start_line_for_case is", found_start_line_for_case)
 
         # print("count is", count)
         if count_for_case > 0 and found_start_line_for_case != -1:
-            print("second yes")
+            #print("second yes")
             # Extract the found line and the subsequent 7 lines
             extracted_lines = abstract_to_end.split('\n')[found_start_line_for_case:(end_line + 1)]
-            # print(extracted_lines)
+            # #print(extracted_lines)
             report_to_discussion = '\n'.join(extracted_lines)
-            print("report to discussion is", report_to_discussion)
+            #print("report to discussion is", report_to_discussion)
             first_three_lines_split = report_to_discussion.split("\n")[:10]
             first_three_lines = '\n'.join(first_three_lines_split)
 
@@ -175,7 +175,7 @@ def get_parent_text(source_text, en_core, bcd5r):
         "Other Pacific",
         "Other",
         "White"]
-    print(first_three_lines)
+    #print(first_three_lines)
     lines = first_three_lines.split()
     mother_father_keywords = ["mother", "father"]
     mother_first_name = ""
@@ -220,7 +220,7 @@ def get_parent_text(source_text, en_core, bcd5r):
         for keyword in mother_father_keywords:
             if keyword in row:
                 mother_father_keyword = keyword
-                print(row)
+                #print(row)
 
                 # Find the start and end indices of the relevant portion of the line
                 start_line = row.find(keyword)
@@ -237,10 +237,10 @@ def get_parent_text(source_text, en_core, bcd5r):
 
                 # Extract the text up to the full stop
                 mother_comments += mother_text[:end_line + 1] + "\n"
-                print("mother comm", mother_comments)
+                #print("mother comm", mother_comments)
                 # Extracting starts
     cleaned_comments = mother_comments.replace(' - ', '-')
-    print("cleaned_comm", cleaned_comments)
+    #print("cleaned_comm", cleaned_comments)
     if start_line is not None and mother_father_keyword == mother_father_keywords[0]:
 
         doc = nlp_1(cleaned_comments)
@@ -260,7 +260,7 @@ def get_parent_text(source_text, en_core, bcd5r):
 
         # Remove duplicate names
         patient_name = ' '.join(list(dict.fromkeys(parent_name.split())))
-        print(patient_name)
+        #print(patient_name)
         name_parts = patient_name.split()
         num_words = len(name_parts)
         if num_words == 2:
@@ -276,11 +276,11 @@ def get_parent_text(source_text, en_core, bcd5r):
             mother_middle_name = name_parts[1]
             mother_last_name = " ".join(name_parts[2:])
 
-        print("Mother First name:", mother_first_name)
+        #print("Mother First name:", mother_first_name)
 
-        print("Mother middle name:", mother_middle_name)
+        #print("Mother middle name:", mother_middle_name)
 
-        print("Mother last name:", mother_last_name)
+        #print("Mother last name:", mother_last_name)
 
         # Initials
 
@@ -290,7 +290,7 @@ def get_parent_text(source_text, en_core, bcd5r):
             initials = mother_first_name[0]
         else:
             initials = mother_first_name[0] + mother_last_name[0]
-        print("Initials:", initials)
+        #print("Initials:", initials)
 
         # nlp = stanza.Pipeline('en', package='CRAFT', processors={'ner': 'bc5cdr'}, download_method=None,use_gpu=False)
 
@@ -307,10 +307,10 @@ def get_parent_text(source_text, en_core, bcd5r):
             if match_index != -1 and first_three_lines.find("old", match_index) != -1:
                 mother_age = ages
                 time_unit = time_unit_
-        print("Mother Age at time of onset of reaction:", mother_age)
+        #print("Mother Age at time of onset of reaction:", mother_age)
 
         # Extract units
-        print("Mother Age at time of onset of reaction(units):", time_unit)
+        #print("Mother Age at time of onset of reaction(units):", time_unit)
 
         # Date of birth
 
@@ -318,10 +318,10 @@ def get_parent_text(source_text, en_core, bcd5r):
         matches = dob_pattern.findall(cleaned_comments)
         if matches:
             dob = matches[0]
-        print("Date of birth:", dob)
+        #print("Date of birth:", dob)
 
         sex = patient_gender[1]
-        print("Sex:", sex)
+        #print("Sex:", sex)
 
         # GROUP TYPE
 
@@ -342,7 +342,7 @@ def get_parent_text(source_text, en_core, bcd5r):
             ethnic = ethnic_groups[5]
         elif group == "White":
             ethnic = ethnic_groups[7]
-        print("Mother Ethnic_group:", ethnic)
+        #print("Mother Ethnic_group:", ethnic)
 
         # Weight
 
@@ -364,7 +364,7 @@ def get_parent_text(source_text, en_core, bcd5r):
                 weight = converted_weight
             else:
                 weight = weight
-        print(" Mother Weight (kg):", weight)
+        #print(" Mother Weight (kg):", weight)
 
         # Height
 
@@ -385,12 +385,11 @@ def get_parent_text(source_text, en_core, bcd5r):
                 height_in_cm = int(height) * 30.48  # Convert feet to cm
                 if inches:
                     height_in_cm += int(inches) * 2.54  # Convert inches to cm
-                print(" Mother Height (cm):", height_in_cm)
+                #print(" Mother Height (cm):", height_in_cm)
             else:
                 height_in_cm = height
-                print("Mother Height (cm):", height_in_cm)
-        else:
-            print("Mother Height (cm):", height_in_cm)
+                #print("Mother Height (cm):", height_in_cm)
+
 
         feeding_keywords = ["feeding", "milk"]
         feeding_comments = ""
@@ -429,7 +428,7 @@ def get_parent_text(source_text, en_core, bcd5r):
                     date_match = date_pattern.search(sentence)
                     if date_match:
                         lmp = date_match.group(1)
-            print("Last Menstrual period", lmp)
+            #print("Last Menstrual period", lmp)
 
         # Gestation period
 
@@ -440,8 +439,8 @@ def get_parent_text(source_text, en_core, bcd5r):
         matches = gestation_period_pattern.findall(first_three_lines)
         if matches:
             gestation_period, gestation_period_units = int(matches[0][0]), matches[0][1]
-        print("Gestation period::", gestation_period)
-        print("Gestation period units:", gestation_period_units)
+        #print("Gestation period::", gestation_period)
+        #print("Gestation period units:", gestation_period_units)
 
         # mother medical history
 
@@ -459,8 +458,8 @@ def get_parent_text(source_text, en_core, bcd5r):
             if matched_end_date != start_date:
                 end_date = matched_end_date
 
-        print("Start date:", start_date)
-        print("End date:", end_date)
+        #print("Start date:", start_date)
+        #print("End date:", end_date)
 
         # Continuing
 
@@ -473,7 +472,7 @@ def get_parent_text(source_text, en_core, bcd5r):
         else:
             continuing = continuing_list[2]
 
-        print("Continuing:", continuing)
+        #print("Continuing:", continuing)
 
         # LLT
         # Gathering medical history
@@ -484,15 +483,15 @@ def get_parent_text(source_text, en_core, bcd5r):
 
         for history_keyword in history_keywords:
             if "mother" in lines and history_keyword in lines:
-                print("found mother line")
+                #print("found mother line")
                 if "had no" not in lines or "no history" not in lines:
-                    print("history line", lines)
+                    #print("history line", lines)
                     # Find the start and end indices of the relevant portion of the line
                     start_line = lines.find(history_keyword)
 
                     # Accumulate the text from the current line
                     history_text = lines[start_line:]
-                    print(history_text)
+                    #print(history_text)
                     # Check if there is a full stop in the remaining text
                     end_line = history_text.find('.')
                     while end_line == -1 and i + 1 < len(lines):
@@ -517,11 +516,11 @@ def get_parent_text(source_text, en_core, bcd5r):
             if ent.label_ == "DISEASE":
                 mother_llt.append(ent.text)
         if "COVID" in cleaned_comments and "19" in cleaned_comments:
-            print("YES")
+            #print("YES")
             mother_llt.append("COVID-19")
         mother_llt_string = ','.join(mother_llt)
-        print("LLT", mother_llt_string)
-        print("Comments", cleaned_comments)
+        #print("LLT", mother_llt_string)
+        #print("Comments", cleaned_comments)
 
         # DRUG HISTORY
         text_line = ""
@@ -550,11 +549,11 @@ def get_parent_text(source_text, en_core, bcd5r):
             # Store the current line in previous_lines
             previous_lines.append(line)
 
-        print("Text Before Medicine:")
-        print(text_before_medicine)
+        #print("Text Before Medicine:")
+        #print(text_before_medicine)
 
-        print("\nText After Medicine:")
-        print(text_after_medicine)
+        #print("\nText After Medicine:")
+        #print(text_after_medicine)
 
         # Name of drug
         # nlp = spacy.blank("en")
@@ -564,7 +563,7 @@ def get_parent_text(source_text, en_core, bcd5r):
             if ent.label_ == "CHEMICAL":
                 drug_name.append(ent.text)
         drug_name_string = ','.join(drug_name)
-        print("LLT", drug_name_string)
+        #print("LLT", drug_name_string)
 
         # Indication
         indication_keywords = ["noticed", "observed", "experienced", "suffered", "reported", "developed", "showed",
@@ -587,8 +586,8 @@ def get_parent_text(source_text, en_core, bcd5r):
             if ent.label_ == "DISEASE":
                 llt_indicators.append(ent.text)
         llt_indicators_string = ','.join(llt_indicators)
-        print("Indication LLT:", llt_indicators)
-        print("Indication Comment:", indication_text)
+        #print("Indication LLT:", llt_indicators)
+        #print("Indication Comment:", indication_text)
 
         # Reaction after drug
 
@@ -597,8 +596,8 @@ def get_parent_text(source_text, en_core, bcd5r):
             if ent.label_ == "DISEASE":
                 llt_reactions.append(ent.text)
         llt_reactions_string = ','.join(llt_reactions)
-        print("Reaction LLT:", llt_reactions)
-        print("Reaction Comment:", text_after_medicine.split("/n")[:2])
+        #print("Reaction LLT:", llt_reactions)
+        #print("Reaction Comment:", text_after_medicine.split("/n")[:2])
     elif start_line is not None and mother_father_keyword == mother_father_keywords[1]:
         # Extracting starts
         nlp_1 = spacy.load("en_core_web_sm")
@@ -619,7 +618,7 @@ def get_parent_text(source_text, en_core, bcd5r):
 
         # Remove duplicate names
         patient_name = ' '.join(list(dict.fromkeys(parent_name.split())))
-        print(patient_name)
+        #print(patient_name)
         name_parts = patient_name.split()
         num_words = len(name_parts)
         if num_words == 2:
@@ -635,11 +634,11 @@ def get_parent_text(source_text, en_core, bcd5r):
             mother_middle_name = name_parts[1]
             mother_last_name = " ".join(name_parts[2:])
 
-        print("Father First name:", mother_first_name)
+        #print("Father First name:", mother_first_name)
 
-        print("Father middle name:", mother_middle_name)
+        #print("Father middle name:", mother_middle_name)
 
-        print("Father last name:", mother_last_name)
+        #print("Father last name:", mother_last_name)
 
         # Initials
         initials = ""
@@ -649,7 +648,7 @@ def get_parent_text(source_text, en_core, bcd5r):
             initials = mother_first_name[0]
         else:
             initials = mother_first_name[0] + mother_last_name[0]
-        print("Initials:", initials)
+        #print("Initials:", initials)
 
         # nlp = stanza.Pipeline('en', package='CRAFT', processors={'ner': 'bc5cdr'}, download_method=None,use_gpu=False)
 
@@ -658,11 +657,11 @@ def get_parent_text(source_text, en_core, bcd5r):
             if ent.label_ == "DISEASE":
                 mother_llt.append(ent.text)
         if "COVID" in cleaned_comments and "19" in cleaned_comments:
-            print("YES")
+            #print("YES")
             mother_llt.append("COVID-19")
         mother_llt_string = ','.join(mother_llt)
-        print("LLT", mother_llt)
-        print("Comments", cleaned_comments)
+        #print("LLT", mother_llt)
+        #print("Comments", cleaned_comments)
 
         # Age
 
@@ -679,10 +678,10 @@ def get_parent_text(source_text, en_core, bcd5r):
             if match_index != -1 and first_three_lines.find("old", match_index) != -1:
                 mother_age = ages
                 time_unit = time_unit_
-        print("Father Age at time of onset of reaction:", mother_age)
+        #print("Father Age at time of onset of reaction:", mother_age)
 
         # Extract units
-        print("Father Age at time of onset of reaction(units):", time_unit)
+        #print("Father Age at time of onset of reaction(units):", time_unit)
 
         # Date of birth
         dob = ""
@@ -690,10 +689,10 @@ def get_parent_text(source_text, en_core, bcd5r):
         matches = dob_pattern.findall(cleaned_comments)
         if matches:
             dob = matches[0]
-        print("Date of birth:", dob)
+        #print("Date of birth:", dob)
 
         sex = patient_gender[0]
-        print("Sex:", sex)
+        #print("Sex:", sex)
 
         group = ""
         ethnic = ""
@@ -715,7 +714,7 @@ def get_parent_text(source_text, en_core, bcd5r):
             ethnic = ethnic_groups[5]
         elif group == "White":
             ethnic = ethnic_groups[7]
-        print("Mother Ethnic_group:", ethnic)
+        #print("Mother Ethnic_group:", ethnic)
 
         # Weight
         weight = ""
@@ -739,7 +738,7 @@ def get_parent_text(source_text, en_core, bcd5r):
                 weight = converted_weight
             else:
                 weight = weight
-        print(" Father Weight (kg):", weight)
+        #print(" Father Weight (kg):", weight)
 
         # Height
         height = ""
@@ -762,12 +761,11 @@ def get_parent_text(source_text, en_core, bcd5r):
                 height_in_cm = int(height) * 30.48  # Convert feet to cm
                 if inches:
                     height_in_cm += int(inches) * 2.54  # Convert inches to cm
-                print("Father Height (cm):", height_in_cm)
+                #print("Father Height (cm):", height_in_cm)
             else:
                 height_in_cm = height
-                print("Father Height (cm):", height_in_cm)
-        else:
-            print("Father Height (cm):", height_in_cm)
+                #print("Father Height (cm):", height_in_cm)
+
         #
         # feeding_keywords = ["feeding", "milk"]
         # feeding_comments = ""
@@ -809,8 +807,8 @@ def get_parent_text(source_text, en_core, bcd5r):
             if matched_end_date != start_date:
                 end_date = matched_end_date
 
-        print("Start date:", start_date)
-        print("End date:", end_date)
+        #print("Start date:", start_date)
+        #print("End date:", end_date)
 
         # Continuing
         continuing = ""
@@ -823,7 +821,7 @@ def get_parent_text(source_text, en_core, bcd5r):
         else:
             continuing = continuing_list[2]
 
-        print("Continuing:", continuing)
+        #print("Continuing:", continuing)
 
         # LLT
         # Gathering medical history
@@ -834,15 +832,15 @@ def get_parent_text(source_text, en_core, bcd5r):
 
         for history_keyword in history_keywords:
             if "father" in lines and history_keyword in lines:
-                print("found mother line")
+                #print("found mother line")
                 if "had no" not in lines or "no history" not in lines:
-                    print("history line", lines)
+                    #print("history line", lines)
                     # Find the start and end indices of the relevant portion of the line
                     start_line = lines.find(history_keyword)
 
                     # Accumulate the text from the current line
                     history_text = lines[start_line:]
-                    print(history_text)
+                    #print(history_text)
                     # Check if there is a full stop in the remaining text
                     end_line = history_text.find('.')
                     while end_line == -1 and i + 1 < len(lines):
@@ -867,13 +865,13 @@ def get_parent_text(source_text, en_core, bcd5r):
             if ent.label_ == "DISEASE":
                 mother_llt.append(ent.text)
         if "COVID" in cleaned_comments and "19" in cleaned_comments:
-            print("YES")
+            #print("YES")
             mother_llt.append("COVID-19")
         mother_llt_string = ','.join(mother_llt)
-        print("LLT", mother_llt_string)
+        #print("LLT", mother_llt_string)
         splitted_mother_llt = mother_llt_string.split(',')
         mother_llt_output = splitted_mother_llt[0]
-        print("Comments", cleaned_comments)
+        #print("Comments", cleaned_comments)
 
         # DRUG HISTORY
         text_line = ""
@@ -902,11 +900,11 @@ def get_parent_text(source_text, en_core, bcd5r):
             # Store the current line in previous_lines
             previous_lines.append(line)
 
-        print("Text Before Medicine:")
-        print(text_before_medicine)
+        #print("Text Before Medicine:")
+        #print(text_before_medicine)
 
-        print("\nText After Medicine:")
-        print(text_after_medicine)
+        #print("\nText After Medicine:")
+        #print(text_after_medicine)
 
         # Name of drug
         # nlp = spacy.blank("en")
@@ -916,11 +914,11 @@ def get_parent_text(source_text, en_core, bcd5r):
             if ent.label_ == "CHEMICAL":
                 drug_name_set.add(ent.text)
         if "COVID" in cleaned_comments and "19" in cleaned_comments:
-            print("YES")
+            #print("YES")
             drug_name_set.add("COVID-19")
         drug_name_list = list(drug_name_set)
         drug_name_string = ','.join(drug_name_list)
-        print("LLT", drug_name_string)
+        #print("LLT", drug_name_string)
 
         # Indication
         indication_keywords = ["noticed", "observed", "experienced", "suffered", "reported", "developed", "showed",
@@ -943,8 +941,8 @@ def get_parent_text(source_text, en_core, bcd5r):
             if ent.label_ == "DISEASE":
                 llt_indicators.append(ent.text)
         llt_indicators_string = ','.join(llt_indicators)
-        print("Indication LLT:", llt_indicators)
-        print("Indication Comment:", indication_text)
+        #print("Indication LLT:", llt_indicators)
+        #print("Indication Comment:", indication_text)
 
         # Reaction after drug
 
@@ -953,33 +951,9 @@ def get_parent_text(source_text, en_core, bcd5r):
             if ent.label_ == "DISEASE":
                 llt_reactions.append(ent.text)
         llt_reactions_string = ','.join(llt_reactions)
-        print("Reaction LLT:", llt_reactions)
-        print("Reaction Comment:", text_after_medicine.split("/n")[:2])
-    else:
-        print("First name:", mother_first_name)
-        print("Middle name:", mother_middle_name)
-        print("Last name:", mother_last_name)
-        print("Initials", initials)
-        print("LLT:", mother_llt)
-        print("Age:", mother_age)
-        print("Time unit:", time_unit)
-        print("Date of Birth;", dob)
-        print("Sex:", "")
-        print("Ethnic Group:", group)
-        print("Height in (cm):", height_in_cm)
-        print("Weight (kg):", weight)
-        print("LMP:", lmp)
-        print("Gestation period:", gestation_period)
-        print("Start date:", start_date)
-        print("End date:", end_date)
-        print("Continuing", continuing)
-        print("LLT:", llt)
-        print("Comments:", comments)
-        print("LLT Indicators:", llt_indicators)
-        print("Comments:", indication_text)
-        print("Name of Drug:", drug_name)
-        print("Drug LLT:", llt_reactions)
-        print("Comments:", reaction_comment)
+        #print("Reaction LLT:", llt_reactions)
+        #print("Reaction Comment:", text_after_medicine.split("/n")[:2])
+
 
     parent = {
         "parent_information": {

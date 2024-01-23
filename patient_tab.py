@@ -40,7 +40,7 @@ def get_patient_text(source_text, en_core, bcd5r):
     # Title
     title = ""
     protect_confidentiality = "Yes"
-    print("Title:", title)
+    # print("Title:", title)
 
     report_to_discussion = ""
     first_three_lines = ""
@@ -82,7 +82,7 @@ def get_patient_text(source_text, en_core, bcd5r):
                     count += 1
                     found_start_line = i
                     break
-        print("found_start_line is", found_start_line)
+        # print("found_start_line is", found_start_line)
         # print("count is", count)
         if count > 0 and found_start_line != -1:
             # print("second yes")
@@ -90,7 +90,7 @@ def get_patient_text(source_text, en_core, bcd5r):
             extracted_lines_from_abstract = all_text.split('\n')[found_start_line + len(searching):]
             # print(extracted_lines)
             abstract_to_end_first = '\n'.join(extracted_lines_from_abstract)
-            print("abstract to end", abstract_to_end_first)
+            # print("abstract to end", abstract_to_end_first)
         count_2 = 0
         for i, line in enumerate(abstract_to_end_first.split('\n')):
             for searching in abstract_terms:
@@ -107,7 +107,7 @@ def get_patient_text(source_text, en_core, bcd5r):
             extracted_lines_from_abstract = abstract_to_end_first.split('\n')[found_start_line:]
             # print(extracted_lines)
             abstract_to_end = '\n'.join(extracted_lines_from_abstract)
-            print("abstract to end from count 2", abstract_to_end)
+            # print("abstract to end from count 2", abstract_to_end)
         else:
             abstract_to_end = abstract_to_end_first
 
@@ -121,13 +121,13 @@ def get_patient_text(source_text, en_core, bcd5r):
         count_for_case = 0
         found_start_line_for_case = -1
         end_line = -1
-        print("split of ab_to_end*****", abstract_to_end.split('\n'))
+        # print("split of ab_to_end*****", abstract_to_end.split('\n'))
         for i, line in enumerate(abstract_to_end.split("\n")):
             for searching in case_keywords:
                 if searching in line:
-                    print("Yes case keyword is present")
-                    print("line is", line)
-                    print("case keyword is", searching)
+                    # print("Yes case keyword is present")
+                    # print("line is", line)
+                    # print("case keyword is", searching)
 
                     count_for_case += 1
 
@@ -138,21 +138,21 @@ def get_patient_text(source_text, en_core, bcd5r):
 
             # Assuming you want to store the line index where "Case Report" is found
             if any(keyword in line for keyword in ["Discussion", "Conclusion", "DISCUSSION", "CONCLUSION"]):
-                print("line", line)
-                print("i", i)
+                # print("line", line)
+                # print("i", i)
                 end_line = i
                 break
 
-        print("found_start_line_for_case is", found_start_line_for_case)
+        # print("found_start_line_for_case is", found_start_line_for_case)
 
         # print("count is", count)
         if count_for_case > 0 and found_start_line_for_case != -1:
-            print("second yes")
+            # print("second yes")
             # Extract the found line and the subsequent 7 lines
             extracted_lines = abstract_to_end.split('\n')[found_start_line_for_case:(end_line + 1)]
             # print(extracted_lines)
             report_to_discussion = '\n'.join(extracted_lines)
-            print("report to discussion is", report_to_discussion)
+            # print("report to discussion is", report_to_discussion)
             first_three_lines_split = report_to_discussion.split("\n")[:10]
             first_three_lines = '\n'.join(first_three_lines_split)
 
@@ -184,7 +184,7 @@ def get_patient_text(source_text, en_core, bcd5r):
         patient_name += current_name.strip()
     # Remove duplicate names
     patient_name = ' '.join(list(dict.fromkeys(patient_name.split())))
-    print(patient_name)
+    # print(patient_name)
     name_parts = patient_name.split()
 
     num_words = len(name_parts)
@@ -201,9 +201,9 @@ def get_patient_text(source_text, en_core, bcd5r):
         middle_name = name_parts[1]
         last_name = " ".join(name_parts[2:])
 
-    print("First name:", first_name)
-    print("Middle name:", middle_name)
-    print("Last name:", last_name)
+    # print("First name:", first_name)
+    # print("Middle name:", middle_name)
+    # print("Last name:", last_name)
 
     # Initials
     initials = ""
@@ -213,21 +213,21 @@ def get_patient_text(source_text, en_core, bcd5r):
         initials = first_name[0]
     else:
         initials = first_name[0] + last_name[0]
-    print("Initials:", initials)
+    # print("Initials:", initials)
 
     # OCCUPATION
     occupation = ""
-    print("Occupation", occupation)
+    # print("Occupation", occupation)
 
     # Medical record source type
     medical_record_source_type_keywords = ["GP", "Specialist", "Hospital Record", "Investigation", "gpmrn",
                                            "specialistMrn", "hospitalMrn", "investigation"]
     medical_record_source_type = ""
-    print("Medical record source type:", medical_record_source_type)
+    # print("Medical record source type:", medical_record_source_type)
 
     # Medical record number
     medical_record_number = ""
-    print("Medical Record number:", medical_record_number)
+    # print("Medical Record number:", medical_record_number)
 
     # Age
     age = ""
@@ -244,10 +244,10 @@ def get_patient_text(source_text, en_core, bcd5r):
         if match_index != -1 and first_three_lines.find("old", match_index) != -1:
             age = ages
             time_unit = time_unit_
-    print("Age at time of onset of reaction:", age)
+    # print("Age at time of onset of reaction:", age)
 
     # Extract units
-    print("Age at time of onset of reaction(units):", time_unit)
+    # print("Age at time of onset of reaction(units):", time_unit)
 
     # Date of birth
     date_of_birth = ""
@@ -256,7 +256,7 @@ def get_patient_text(source_text, en_core, bcd5r):
         matches = dob_pattern.findall(first_three_lines)
         if matches:
             date_of_birth = matches[0]
-    print("Date of birth:", date_of_birth)
+    # print("Date of birth:", date_of_birth)
 
     # Age group
     age_groups = ['Foetus', 'Neonate', 'Infants', 'Child', 'Adolescent', 'Adults', 'Elderly']
@@ -266,24 +266,24 @@ def get_patient_text(source_text, en_core, bcd5r):
         if (0 <= age <= 12 and time_unit == time_units[3]) or (1 <= age <= 50 and time_unit == time_units[5]) or (
                 time_unit == time_units[4]):
             age_group = age_groups[1]
-            print("Age group:", age_groups[1])
+            # print("Age group:", age_groups[1])
         elif (1 <= age <= 3 and time_unit == time_units[0]) or (13 <= age <= 36 and time_unit == time_units[3]):
-            print("Age group:", age_groups[2])
+            # print("Age group:", age_groups[2])
             age_group = age_groups[2]
         elif 3 <= age <= 11 and time_unit == time_units[0]:
-            print("Age group:", age_groups[3])
+            # print("Age group:", age_groups[3])
             age_group = age_groups[3]
         elif 12 <= age <= 18 and time_unit == time_units[0]:
-            print("Age group:", age_groups[4])
+            # print("Age group:", age_groups[4])
             age_group = age_groups[4]
         elif (19 <= age <= 69 and time_unit == time_units[0]) or (3 <= age <= 6 and time_unit == time_units[2]):
-            print("Age group:", age_groups[5])
+            # print("Age group:", age_groups[5])
             age_group = age_groups[5]
         elif (age > 69 and time_unit == time_units[0]) or (7 <= age < 10 and time_unit == time_units[2]):
-            print("Age group:", age_groups[6])
+            # print("Age group:", age_groups[6])
             age_group = age_groups[6]
         else:
-            print("Age group:", age_groups[0])
+            # print("Age group:", age_groups[0])
             age_group = age_groups[0]
 
     # Sex
@@ -299,7 +299,7 @@ def get_patient_text(source_text, en_core, bcd5r):
             break
         else:
             sex = patient_gender[2]
-    print("Sex:", sex)
+    # print("Sex:", sex)
 
     if sex == patient_gender[2]:
         initials = "UNK"
@@ -345,7 +345,7 @@ def get_patient_text(source_text, en_core, bcd5r):
         ethnic = ethnic_groups[5]
     elif ethnic_group == "White":
         ethnic = ethnic_groups[7]
-    print("Ethnic_group:", ethnic)
+    # print("Ethnic_group:", ethnic)
 
     # Weight
     weight = ""
@@ -356,7 +356,7 @@ def get_patient_text(source_text, en_core, bcd5r):
 
     # Find all matches in the text
     matches = weight_pattern.findall(first_three_lines)
-    print("matches from weight",matches)
+    # print("matches from weight",matches)
     sentence = ""
     # Extract weights and units if matches are found
     for match in matches:
@@ -377,7 +377,7 @@ def get_patient_text(source_text, en_core, bcd5r):
             weight = converted_weight
         else:
             weight = weight
-    print("Weight (kg):", weight)
+    # print("Weight (kg):", weight)
 
     # Height
     height = ""
@@ -402,12 +402,10 @@ def get_patient_text(source_text, en_core, bcd5r):
             height_in_cm = int(height) * 30.48  # Convert feet to cm
             if inches:
                 height_in_cm += int(inches) * 2.54  # Convert inches to cm
-            print("Height (cm):", height_in_cm)
+            # print("Height (cm):", height_in_cm)
         else:
             height_in_cm = height
-            print("Height (cm):", height_in_cm)
-    else:
-        print("Height (cm):", height_in_cm)
+            # print("Height (cm):", height_in_cm)
 
     # Opening Female section
     # LMP
@@ -434,7 +432,7 @@ def get_patient_text(source_text, en_core, bcd5r):
                 date_match = date_pattern.search(sentence)
                 if date_match:
                     last_menstrual_period = date_match.group(1)
-        print("Last Menstrual period", last_menstrual_period)
+        # print("Last Menstrual period", last_menstrual_period)
 
         # pregnant or not
         if 'not pregnant' in first_three_lines.lower():
@@ -444,7 +442,7 @@ def get_patient_text(source_text, en_core, bcd5r):
             pregnant_ = pregnant[0]
         else:
             pregnant_ = pregnant[2]
-        print("pregnant:", pregnant_)
+        # print("pregnant:", pregnant_)
 
         # Pregnant information extraction after confirms
         if pregnant_ == "Yes":
@@ -454,8 +452,8 @@ def get_patient_text(source_text, en_core, bcd5r):
                     sentence_start = max(0, first_three_lines.rfind('.', 0, first_three_lines.lower().find(word)))
                     sentence_end = first_three_lines.find('.', first_three_lines.lower().find(word))
                     sentence = first_three_lines[sentence_start:sentence_end].strip()
-                    print(f"EDD Word '{word}' related to estimation delivery date found in the text.")
-                    print(f"EDD Sentence: '{sentence}'")
+                    # print(f"EDD Word '{word}' related to estimation delivery date found in the text.")
+                    # print(f"EDD Sentence: '{sentence}'")
 
                     date_pattern = re.compile(r'\b(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b')
                     date_match = date_pattern.search(sentence)
@@ -470,7 +468,7 @@ def get_patient_text(source_text, en_core, bcd5r):
                         # Extract and print the date if found
                         if date_match:
                             edd = date_match.group(1)
-            print("Estimation delivery date", edd)
+            # print("Estimation delivery date", edd)
 
             # OUTCOME OF PREGNANCY
             outcome_of_pregnancy = [
@@ -493,8 +491,8 @@ def get_patient_text(source_text, en_core, bcd5r):
             matches = gestation_period_pattern.findall(first_three_lines)
             if matches:
                 gestation_period, gestation_period_units = int(matches[0][0]), matches[0][1]
-            print("Gestation period::", gestation_period)
-            print("Gestation period units:", gestation_period_units)
+            # print("Gestation period::", gestation_period)
+            # print("Gestation period units:", gestation_period_units)
 
             concomitant_therapy_administered = ['true', 'false']
             breastfeeding = ['true', 'false']
@@ -537,11 +535,11 @@ def get_patient_text(source_text, en_core, bcd5r):
         city_ = city
 
     # city
-    print("Patient City:", city_)
+    # print("Patient City:", city_)
 
     # State
     state = " "
-    print("Patient state:", state)
+    # print("Patient state:", state)
 
     # Pincode
     pincode = " "
@@ -579,10 +577,10 @@ def get_patient_text(source_text, en_core, bcd5r):
         if digit_count > max_digit_count:
             max_digit_count = digit_count
             pincode = string
-    print("Patient Pincode:", pincode)
+    #print("Patient Pincode:", pincode)
 
     # Print the found countries
-    print("Patient Country:", found_patient_countries)
+    #print("Patient Country:", found_patient_countries)
 
     # Phone number
     lines = first_three_lines.split('\n')
@@ -608,7 +606,7 @@ def get_patient_text(source_text, en_core, bcd5r):
             elif numbers_with_plus_in_brackets_and_space:
                 phone_number = numbers_with_plus_in_brackets_and_space
 
-    print("Patient PhoneNumber", phone_number)
+    # print("Patient PhoneNumber", phone_number)
 
     # Email pattern
     email_address = " "
@@ -617,7 +615,7 @@ def get_patient_text(source_text, en_core, bcd5r):
     patient_email = re.findall(email_pattern, first_three_lines)
     if patient_email:
         email_address = patient_email
-    print("Patient Email Address:", email_address)
+    # print("Patient Email Address:", email_address)
 
     relevant_medical_history_and_concurrent = ""
 
@@ -656,8 +654,8 @@ def get_patient_text(source_text, en_core, bcd5r):
                                 matched_date_2 = match_end_2.group()
                                 end_date = matched_date_2
 
-    print("Start date:", start_date)
-    print("End date:", end_date)
+    # print("Start date:", start_date)
+    # print("End date:", end_date)
 
     # Continuing
     continuing = ""
@@ -676,7 +674,7 @@ def get_patient_text(source_text, en_core, bcd5r):
                     else:
                         continuing = continuing_list[2]
 
-    print("Continuing:", continuing)
+    # print("Continuing:", continuing)
 
     family_history = ["True", "False"]
 
@@ -699,25 +697,24 @@ def get_patient_text(source_text, en_core, bcd5r):
     # Output the matches
     if matches:
         for match in matches:
-            print(f"Found match: {match}")
+            # print(f"Found match: {match}")
             for i, line in enumerate(lines.split('\n')):
                 if match in line:
-                    print("Yes, keyword found")
+                    # print("Yes, keyword found")
                     start_line = line.find(match)
                     text = line[start_line:]
 
                     next_line_index = i + 1
                     while next_line_index < len(lines.split('\n')):
                         if "." in lines.split('\n')[next_line_index]:
-                            print("Yes, '.' is present in the next line")
+                            # print("Yes, '.' is present in the next line")
                             end_line = lines.split('\n')[next_line_index]
-                            print(end_line)
+                            # print(end_line)
                             death_tet_for_comments += text + end_line + "\n"
                             break
                         next_line_index += 1
             death_text += text + "\n"
-    else:
-        print("************not matched*********")
+
 
 
     # end_line = death_text.find('.')
@@ -726,7 +723,7 @@ def get_patient_text(source_text, en_core, bcd5r):
     matches = dod_pattern.findall(death_text)
     if matches:
         dob = matches[0]
-    print("Date of death:", dod)
+    # print("Date of death:", dod)
 
     # Cause of death
     cause_of_death = []
@@ -739,10 +736,10 @@ def get_patient_text(source_text, en_core, bcd5r):
     death_llt_set = list(set(death_llt))
     death_llt_string = ','.join(death_llt_set)
     cause_of_death_string = ','.join(cause_of_death)
-    print("Cause of death", cause_of_death_string)
-    print("LLT", death_llt_string)
+    # print("Cause of death", cause_of_death_string)
+    # print("LLT", death_llt_string)
     cause_of_death_comments = death_llt
-    print("Comments", death_text)
+    # print("Comments", death_text)
     # AUTOPSY PART
     autopsy_keywords = ["autopsy", "Post-mortem", "necropsy", "examination", "medical examination", "post mortem"]
     autopsy_done = ["true", "false", "UNk", "ASKU"]
@@ -765,7 +762,7 @@ def get_patient_text(source_text, en_core, bcd5r):
             else:
                 autopsy = autopsy_done[2]
     autopsy_text += text_after_autopsy + "\n"
-    print("Autopsy:", autopsy)
+    # print("Autopsy:", autopsy)
     autopsy_cause_of_death = []
     autopsy_llt = []
     doc = nlp(autopsy_text)
@@ -780,9 +777,9 @@ def get_patient_text(source_text, en_core, bcd5r):
     autopsy_llt_set = list(set(autopsy_llt))
     autopsy_llt_string = ', '.join(autopsy_llt_set)
     autopsy_cause_of_death_string = ', '.join(autopsy_cause_of_death)
-    print("Cause of death", autopsy_cause_of_death_string)
-    print("LLT", autopsy_llt_string)
-    print("Autopsy Comments", autopsy_text)
+    # print("Cause of death", autopsy_cause_of_death_string)
+    # print("LLT", autopsy_llt_string)
+    # print("Autopsy Comments", autopsy_text)
 
     # Drug details
     # med7 = spacy.load("en_core_med7_lg")
@@ -813,11 +810,11 @@ def get_patient_text(source_text, en_core, bcd5r):
         # Store the current line in previous_lines
         previous_lines.append(line)
 
-    print("Text Before Medicine:")
-    print(text_before_medicine)
+    # print("Text Before Medicine:")
+    # print(text_before_medicine)
 
-    print("\nText After Medicine:")
-    print(text_after_medicine)
+    # print("\nText After Medicine:")
+    # print(text_after_medicine)
 
     medical_history_text = text_before_medicine
     indication_text_for_response = '\n'.join(medical_history_text.split('\n')[:2])
@@ -830,7 +827,7 @@ def get_patient_text(source_text, en_core, bcd5r):
     for ent in doc.ents:
         if ent.label_ == "CHEMICAL" and ent.text != "RVD":
             drugs.add(ent.text)
-            print("drugs are:", ent.text)
+            # print("drugs are:", ent.text)
     drugs_list = list(set(drugs))
     drugs_string = ', '.join(drugs_list)
 
@@ -840,8 +837,8 @@ def get_patient_text(source_text, en_core, bcd5r):
     for ent in doc.ents:
         if ent.label_ == "DISEASE":
             llt_medical.append(ent.text)
-    print("Indication LLT:", llt_medical)
-    print("Indication Comment:", text_before_medicine)
+    # print("Indication LLT:", llt_medical)
+    # print("Indication Comment:", text_before_medicine)
 
     filtered_llt = list(set(llt_medical))
 
@@ -871,8 +868,8 @@ def get_patient_text(source_text, en_core, bcd5r):
             llt_indicators.append(ent.text)
     llt_indicator_set = list(set(llt_indicators))
     llt_indicators_string = ','.join(llt_indicator_set)
-    print("Indication LLT:", llt_indicators)
-    print("Indication Comment:", indication_text)
+    # print("Indication LLT:", llt_indicators)
+    # print("Indication Comment:", indication_text)
 
     if llt_indicators:
         llt_1 = [item for item in llt_medical if item not in llt_indicators]
@@ -902,11 +899,11 @@ def get_patient_text(source_text, en_core, bcd5r):
     for ent in doc.ents:
         if ent.label_ == "DISEASE":
             llt_reactions.append(ent.text)
-    print("Reaction LLT:", llt_reactions)
+    # print("Reaction LLT:", llt_reactions)
     llt_reactions_set = list(set(llt_reactions))
     llt_reactions_string = ', '.join(llt_reactions)
     comment_reactions = '\n'. join(text_after_medicine.split('/n')[:2])
-    print("Reaction Comment:", comment_reactions)
+    # print("Reaction Comment:", comment_reactions)
 
     patient = {
         "patient_information": {

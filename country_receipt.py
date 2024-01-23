@@ -36,7 +36,7 @@ def get_country_receipt(source_text, en_core, weekly_text_1, meta_data):
     weekly_doc = nlp(weekly_text)
     doc = nlp(all_text)
     title_of_page = meta.title
-    print("title", title_of_page)
+    #print("title", title_of_page)
 
     title_from_literature = ""
     author_name = " "
@@ -59,15 +59,15 @@ def get_country_receipt(source_text, en_core, weekly_text_1, meta_data):
             index_doi = text_up_to_doi_for_author.find('DOI:')
             doi_raw = text_up_to_doi_for_author[index_doi + len('doi:'):].strip()
             doi = re.sub(r'[^\x00-\x7F]+', '', doi_raw)
-        print("doi", doi)
+        #print("doi", doi)
         if not doi:
             print('yes')
             raise HTTPException(status_code=11, detail="DOI not found from source document")
         else:
-            print("yes into pubmed")
+            #print("yes into pubmed")
             fetch = PubMedFetcher()
-            print(fetch)
-            print("again", doi)
+            ##print(fetch)
+            #print("again", doi)
             article = fetch.article_by_doi(doi)
             if article:
                 title_of_page = article.title
@@ -77,7 +77,7 @@ def get_country_receipt(source_text, en_core, weekly_text_1, meta_data):
             # print("article is", article)
             if article is None:
                 success = False
-                print("success", success)
+                #print("success", success)
             author = article.authors[0]
             digital_object_identifier = doi
             literature_reference = article.citation
@@ -88,16 +88,16 @@ def get_country_receipt(source_text, en_core, weekly_text_1, meta_data):
             if page and not any(char.isalpha() for char in page):
                 pages = page
 
-    print('1')
+    #print('1')
 
     # getting title from literature
-    print('6')
+    #print('6')
     if title_of_page:
-        print('7')
+        #print('7')
         # print('title is', title_of_page)
         if title_of_page.split()[0] and title_of_page.split()[1] and title_of_page.split()[2] in weekly_doc.text:
             weekly_split = weekly_text.split('\n')
-            print('8')
+            #print('8')
             # print(weekly_split)
             for i, line in enumerate(weekly_split):
                 # print(line)
@@ -114,14 +114,14 @@ def get_country_receipt(source_text, en_core, weekly_text_1, meta_data):
                     # print('line_index', line_index)
                     extracted_text = '\n'.join(weekly_split[line_index + 1:])
                     # print('extracted_text', extracted_text)
-                    print('10')
+                    #print('10')
                     break
 
             text_lines = extracted_text.split('\n')
 
             author_line = None
             text_up_to_affiliations = ""
-            print('9')
+            #print('9')
             for line in text_lines:
                 if "Affiliations" in line:
                     break  # Stop when the line containing "DOI:" is found
@@ -141,7 +141,7 @@ def get_country_receipt(source_text, en_core, weekly_text_1, meta_data):
                     first_author_name = author_name_before_1
                     author_name = re.sub(r'\d', '', first_author_name)
                     # print(author_name)
-            print('10')
+            #print('10')
 
         # General tab
         # print("###### General #######")
@@ -179,11 +179,7 @@ def get_country_receipt(source_text, en_core, weekly_text_1, meta_data):
                 general_information["initial_receipt_date"] = parsed_date.strftime('%d/%m/%Y')
                 latest_receipt_date = parsed_date.strftime('%d/%m/%Y')
                 # print("Initial Receipt Date:", general_information["initial_receipt_date"])
-            else:
-                print("can't change date")
 
-        else:
-            print("No 'Sent on' line found in the text.")
 
         # Latest receipt date
         general_information["latest_receipt_date"] = general_information["initial_receipt_date"]
@@ -198,8 +194,8 @@ def get_country_receipt(source_text, en_core, weekly_text_1, meta_data):
         is_part_of_city = False
         city = ""
         if author_name.lower() in weekly_doc.text.lower():
-            print('author_name', author_name.lower())
-            print('11')
+            #print('author_name', author_name.lower())
+            #print('11')
             # Find the index of the specific word
             word_index = weekly_doc.text.find(author_name)
 
@@ -207,8 +203,8 @@ def get_country_receipt(source_text, en_core, weekly_text_1, meta_data):
             extracted_text = weekly_doc.text[word_index + len(author_name):]
             # Iterate through the lines
             for line in extracted_text.split("\n"):
-                # print('line is', line)
-                print('12')
+                # #print('line is', line)
+                #print('12')
                 if "DOI:" in line or "doi" in line:
                     break  # Stop when the line containing "DOI:" is found
                 text_up_to_doi += line

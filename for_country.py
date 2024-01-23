@@ -17,12 +17,12 @@ def get_country(title, weekly_text_1, en_core):
     found_countries = ""
 
     # getting title from literature
-    print('6')
+    #print('6')
     if title_of_page:
-        print('7')
+        #print('7')
         if all(word in weekly_doc.text for word in title_of_page.split()[:3]):
             weekly_split = weekly_text.split('\n')
-            print('8')
+            #print('8')
             for i, line in enumerate(weekly_split):
                 if (
                         title_of_page.split()[0] in line
@@ -35,14 +35,14 @@ def get_country(title, weekly_text_1, en_core):
                 ):
                     line_index = i
                     extracted_text = '\n'.join(weekly_split[line_index + 1:])
-                    print('10')
+                    #print('10')
                     break
 
             text_lines = extracted_text.split('\n')
 
             author_line = None
             text_up_to_affiliations = ""
-            print('9')
+            #print('9')
             for line in text_lines:
                 if "Affiliations" in line:
                     break
@@ -59,7 +59,7 @@ def get_country(title, weekly_text_1, en_core):
                 else:
                     first_author_name = author_name_before_1
                     author_name = re.sub(r'\d', '', first_author_name)
-                print('10')
+                #print('10')
 
             # country
             found_countries = ""
@@ -69,8 +69,8 @@ def get_country(title, weekly_text_1, en_core):
             city = ""
 
             if author_name.lower() in weekly_doc.text.lower():
-                print('author_name', author_name.lower())
-                print('11')
+                #print('author_name', author_name.lower())
+                #print('11')
                 # Find the index of the specific word
                 word_index = weekly_doc.text.find(author_name)
 
@@ -78,12 +78,12 @@ def get_country(title, weekly_text_1, en_core):
                 extracted_text = weekly_doc.text[word_index + len(author_name):]
                 # Iterate through the lines
                 for line in extracted_text.split("\n"):
-                    # print('line is', line)
-                    print('12')
+                    # #print('line is', line)
+                    #print('12')
                     if "DOI:" in line or "doi" in line:
                         break  # Stop when the line containing "DOI:" is found
                     text_up_to_doi += line
-                    # print("text upto doi",text_up_to_doi)
+                    # #print("text upto doi",text_up_to_doi)
                 affiliations = text_up_to_doi.split("\n")
                 # Loop through affiliations and search for country names and cities
                 for affiliation in affiliations:
@@ -119,6 +119,6 @@ def get_country(title, weekly_text_1, en_core):
                 # If the city string isn't finished at the end
                 if is_part_of_city != found_countries:
                     found_cities.append(city)
-                print("found_countries", found_countries)
+                #print("found_countries", found_countries)
 
     return found_countries

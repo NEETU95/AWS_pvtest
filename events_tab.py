@@ -22,11 +22,6 @@ def get_events_tab(source_text, country):
         all_text = source_text
         nlp_1 = spacy.load("/var/task/custom_ner_model_with_disease")
         nlp_2 =spacy.load("/var/task/custom_ner_model_with_disease_1")
-        test = """she developed mental shocks, seizures, anemia. and also fever. there is rise in immunoglobulin"""
-        doc = nlp_1(test)
-        for ent in doc.ents:
-            if ent.label_ == "DISEASE":
-                print(ent.text)
 
         report_to_discussion = ""
         first_three_lines = ""
@@ -66,7 +61,7 @@ def get_events_tab(source_text, country):
                         count += 1
                         found_start_line = i
                         break
-            print("found_start_line is", found_start_line)
+            #print("found_start_line is", found_start_line)
             # print("count is", count)
             if count > 0 and found_start_line != -1:
                 #print("second yes")
@@ -74,14 +69,14 @@ def get_events_tab(source_text, country):
                 extracted_lines_from_abstract = all_text.split('\n')[found_start_line+len(searching):]
                 # print(extracted_lines)
                 abstract_to_end_first = '\n'.join(extracted_lines_from_abstract)
-                print("abstract to end", abstract_to_end_first)
+                #print("abstract to end", abstract_to_end_first)
             count_2 = 0
             for i, line in enumerate(abstract_to_end_first.split('\n')):
                 for searching in abstract_terms:
                     if searching in line:
                         #print("yes abstract keyword is present second time", line)
                         count_2 += 1
-                        print("count is", count_2)
+                        #print("count is", count_2)
                         found_start_line_second = i
                     break
             #print("found_start_line second time is", found_start_line_second)
@@ -92,7 +87,7 @@ def get_events_tab(source_text, country):
                 extracted_lines_from_abstract = abstract_to_end_first.split('\n')[found_start_line:]
                 # print(extracted_lines)
                 abstract_to_end = '\n'.join(extracted_lines_from_abstract)
-                print("abstract to end from count 2", abstract_to_end)
+                #print("abstract to end from count 2", abstract_to_end)
             else:
                 abstract_to_end = abstract_to_end_first
 
@@ -107,40 +102,40 @@ def get_events_tab(source_text, country):
             found_start_line_for_case = -1
             end_line = -1
 
-            print("split of ab_to_end*****", abstract_to_end.split('\n'))
+            #print("split of ab_to_end*****", abstract_to_end.split('\n'))
             for i, line in enumerate(abstract_to_end.split("\n")):
                 for searching in case_keywords:
                     if searching in line:
-                        print("Yes case keyword is present")
-                        print("line is", line)
-                        print("case keyword is", searching)
+                        #print("Yes case keyword is present")
+                        #print("line is", line)
+                        #print("case keyword is", searching)
 
                         count_for_case += 1
-                        print("count_for_case is",count_for_case)
+                        #print("count_for_case is",count_for_case)
                         if count_for_case == 1:
                             found_start_line_for_case = i
-                            print(i)
+                            #print(i)
                         break
                 # Stop searching if a keyword is found in the line
 
                 # Assuming you want to store the line index where "Case Report" is found
                 if any(keyword in line for keyword in ["Discussion", "Conclusion", "DISCUSSION", "CONCLUSION"]):
-                    print("line", line)
-                    print("i", i)
+                    #print("line", line)
+                    #print("i", i)
                     end_line = i
                     break
 
-            print("found_start_line_for_case is", found_start_line_for_case)
+            #print("found_start_line_for_case is", found_start_line_for_case)
 
             # print("count is", count)
 
             if count_for_case > 0 and found_start_line_for_case != -1:
-                print("second yes")
+                #print("second yes")
                 # Extract the found line and the subsequent 7 lines
                 extracted_lines = abstract_to_end.split('\n')[found_start_line_for_case:(end_line+1)]
                 #print(extracted_lines)
                 report_to_discussion = '\n'.join(extracted_lines)
-                print("report to discussion is", report_to_discussion)
+                #print("report to discussion is", report_to_discussion)
                 first_three_lines_split = report_to_discussion.split("\n")[:10]
                 first_three_lines = '\n'.join(first_three_lines_split)
                 # if count > 0:
@@ -186,20 +181,20 @@ def get_events_tab(source_text, country):
             if not text_before_medicine:
                 for drug in products['product_name']:
                     if drug.lower() in line.lower():
-                        print("found drug is", drug)
+                        #print("found drug is", drug)
 
                         count_for_drug += 1
-                        print("count for drug", count_for_drug)
+                        #print("count for drug", count_for_drug)
 
                         line_index = line.lower().find(drug.lower())
-                        print(line_index)
+                        #print(line_index)
                         text_line = line[:line_index + len(drug)]
-                        print(text_line)
+                        #print(text_line)
                         # Combine the current line and the previous lines before the medicine
                         text_before_medicine += "\n".join(previous_lines) + "\n" + text_line + "\n"
 
                         lines = report_to_discussion.split('\n')[line_number + 1:]
-                        print(lines)
+                        #print(lines)
                         # Extract lines after the medicine is found (adjust line_number accordingly)
                         text_after_medicine = "\n".join(lines)
 
@@ -215,11 +210,11 @@ def get_events_tab(source_text, country):
                 previous_lines.append(line)
 
 
-        print("Text Before Medicine:")
-        print(text_before_medicine)
+        #print("Text Before Medicine:")
+        #print(text_before_medicine)
         #
-        print("\nText After Medicine:")
-        print(text_after_medicine)
+        #print("\nText After Medicine:")
+        #print(text_after_medicine)
         cleaned_text = re.sub(r'\s*\n\s*', ' ', text_after_medicine)
         cleaned_text = re.sub(r'\s*-\s*', '-', cleaned_text)
         text_after_medicine = cleaned_text
@@ -238,7 +233,7 @@ def get_events_tab(source_text, country):
         for ent in doc.ents:
             if ent.label_ == 'DISEASE':
                 history_llt.append(ent.text)
-        print("Events from medical history:", history_llt)
+        #print("Events from medical history:", history_llt)
 
         doc = nlp_1(text_after_medicine)
         drugs_after_our_drug = []
@@ -246,7 +241,7 @@ def get_events_tab(source_text, country):
             if ent.label_ == "CHEMICAL" and ent.text != 'BA':
                 drugs_after_our_drug.append(ent.text)
 
-        print("drugs after our medicine:", drugs_after_our_drug)
+        #print("drugs after our medicine:", drugs_after_our_drug)
         text_up_to_drug = ""
         text_after_drug = ""
         events_llt_repeated = []
@@ -278,7 +273,7 @@ def get_events_tab(source_text, country):
                     events_llt_repeated.append(ent)
 
         events_llt_raw = list(set(events_llt_repeated))
-        print("events_llt", events_llt_raw)
+        #print("events_llt", events_llt_raw)
 
         resolved_keywords = ['stabilized', 'recovered', 'normalized', 'resolved', 'improved', 'disappeared', 'absense', 'heal', 'regulated', 'cleared', 'absen', 'reduction', 'reduced', 'responded well']
         not_resolved_keywords = ['not stabilized', 'not recovered', 'not normalized', 'not resolved', 'not improved', 'not disappeared', 'not absense', 'not heal', 'not regulated', 'not cleared', 'no reduction', 'not reduced', 'not responded']
@@ -292,8 +287,8 @@ def get_events_tab(source_text, country):
         # To check history_llt is in current llt or not
         for i, event in enumerate(events_llt_raw):
             if event in history_llt:
-                print("matched from history llt", event)
-                print("yes there are events matched form medical history")
+                #print("matched from history llt", event)
+                #print("yes there are events matched form medical history")
 
                 llt_start_index = text_after_medicine.find(event)
                 next_disease_index = i + 1
@@ -324,29 +319,29 @@ def get_events_tab(source_text, country):
 
                             found_keyword = True
                             events_llt.append(event)
-                            print("found_keyword from first for history_check", found_keyword)
-                            print("present in resolved for history check", llt)
-                            print(f"Resolved for history_check: {line}")
+                            # print("found_keyword from first for history_check", found_keyword)
+                            # print("present in resolved for history check", llt)
+                            # print(f"Resolved for history_check: {line}")
                             break
                         elif not check_keywords(line, resolving_keywords):
 
                             found_keyword = True
                             events_llt.append(event)
-                            print("present in resolving for history_check", llt)
-                            print(f"Resolving for history_check: {line}")
+                            # print("present in resolving for history_check", llt)
+                            # print(f"Resolving for history_check: {line}")
                             break
                         elif not check_keywords(line, unchanged_keywords):
 
                             found_keyword = True
                             events_llt.append(event)
-                            print("present in unchanged for history_check ", llt)
-                            print(f"Unchanged for history_check: {line}")
+                            # print("present in unchanged for history_check ", llt)
+                            # print(f"Unchanged for history_check: {line}")
                             break
 
             else:
-                print("there are no history llt")
+               # print("there are no history llt")
                 events_llt.append(event)
-        print("after history filter", events_llt)
+        #print("after history filter", events_llt)
 
         term_highlighted_by_reporter_keywords = ['Yes, highlighted by the reporter, Not serious', 'No, not highlighted by the reporter, Not serious', 'Yes, highlighted by the reporter, Serious', 'No, not highlighted by the reporter, Serious']
         term_highlighted_by_reporter = ""
@@ -380,7 +375,7 @@ def get_events_tab(source_text, country):
 
 
         text_lines = text_after_medicine.split('.')
-        print(text_lines)
+        #print(text_lines)
         resolved_lines = find_lines_with_keywords(resolved_keywords, text_lines)
         not_resolved_lines = find_lines_with_keywords(not_resolved_keywords, text_lines)
         resolving_lines = find_lines_with_keywords(resolving_keywords, text_lines)
@@ -425,7 +420,7 @@ def get_events_tab(source_text, country):
                 death_text = ""
                 dod = ""
                 lines = line_up_to_next_disease.split("\n")
-                print("lines are", lines)
+                #print("lines are", lines)
 
 
                 pattern = re.compile(r'\b(?:' + '|'.join(map(re.escape, dead_keywords)) + r')\b', flags=re.IGNORECASE)
@@ -501,7 +496,7 @@ def get_events_tab(source_text, country):
                 for event in event_terms['event_terms']:
                     if event in llt:
                         other_medically_important_condition = 'Yes'
-                        print(event)
+                        #print(event)
                         break
                     else:
                         other_medically_important_condition = 'No'
@@ -519,63 +514,63 @@ def get_events_tab(source_text, country):
                         outcome_of_the_events = outcome_of_the_events_keywords[4]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in sequele", llt)
-                        print(f"Sequelae: {line}")
+                        #print("present in sequele", llt)
+                        #print(f"Sequelae: {line}")
                         break
 
                     elif check_keywords(line, resolved_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[1]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("found_keyword from first", found_keyword)
-                        print("present in resolved", llt)
-                        print(f"Resolved: {line}")
+                        # print("found_keyword from first", found_keyword)
+                        # print("present in resolved", llt)
+                        # print(f"Resolved: {line}")
                         break
                     elif check_keywords(line, not_resolved_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[2]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in not resolved", llt)
-                        print(f"NOT Resolved: {line}")
+                        # print("present in not resolved", llt)
+                        # print(f"NOT Resolved: {line}")
                         break
                     elif check_keywords(line, resolving_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[3]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in resolving", llt)
-                        print(f"Resolving: {line}")
+                        # print("present in resolving", llt)
+                        # print(f"Resolving: {line}")
                         break
 
                     elif check_keywords(line, fatal_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[5]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in fatal", llt)
-                        print(f"Fatal: {line}")
+                        # print("present in fatal", llt)
+                        # print(f"Fatal: {line}")
                         break
                     elif check_keywords(line, unchanged_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[6]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in unchanged", llt)
-                        print(f"Unchanged: {line}")
+                        # print("present in unchanged", llt)
+                        # print(f"Unchanged: {line}")
                         break
                     elif check_keywords(line, worsened_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[7]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in worsened", llt)
-                        print(f"Worsened: {line}")
+                        # print("present in worsened", llt)
+                        # print(f"Worsened: {line}")
                         break
                 found_keyword_second = False
 
                 if found_keyword is not True:
                     resolved_words = [word.lower() for line in resolved_lines for word in line.split()]
-                    print("resolved words are", resolved_words)
+                    #print("resolved words are", resolved_words)
 
                     words_in_line = [word for word in line_up_to_next_disease.lower().split() if is_common_word(word)]
-                    print("About remaining llt", llt)
-                    print("line_up_to_next_disease", line_up_to_next_disease)
+                    # print("About remaining llt", llt)
+                    # print("line_up_to_next_disease", line_up_to_next_disease)
 
                     common_words = {'the', 'in', 'a', 'and', 'to', 'of', 'for', 'with', 'on', 'at', 'by', 'from', 'as',
                                     'all'}  # Add other common words as needed
@@ -590,9 +585,9 @@ def get_events_tab(source_text, country):
                     if matching_words and any(word in resolved_matching_llt for word in matching_words):
                         outcome_of_the_events = outcome_of_the_events_keywords[1]
                         found_keyword_second = True
-                        print("found_keyword from secon", found_keyword)
-                        print("This event has matched from previous:", llt)
-                        print("Matching Words:", matching_words)
+                        # print("found_keyword from secon", found_keyword)
+                        # print("This event has matched from previous:", llt)
+                        # print("Matching Words:", matching_words)
 
                     not_resolved_words = [word.lower() for line in not_resolved_lines for word in line.split()]
 
@@ -608,8 +603,8 @@ def get_events_tab(source_text, country):
                     if matching_words_for_not_resolved and any(word in not_resolved_matching_llt for word in matching_words_for_not_resolved):
                         outcome_of_the_events = outcome_of_the_events_keywords[2]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_not_resolved)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_not_resolved)
 
                     resolving_words = [word.lower() for line in resolving_lines for word in line.split()]
 
@@ -625,8 +620,8 @@ def get_events_tab(source_text, country):
                     if matching_words_for_resolving and any(word in resolving_matching_llt for word in matching_words_for_resolving):
                         outcome_of_the_events = outcome_of_the_events_keywords[3]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_resolving)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_resolving)
 
                     sequelae_words = [word.lower() for line in sequelae_lines for word in line.split()]
 
@@ -641,8 +636,8 @@ def get_events_tab(source_text, country):
                     if matching_words_for_sequelae and any(word in sequelae_matching_llt for word in matching_words_for_sequelae):
                         outcome_of_the_events = outcome_of_the_events_keywords[4]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_sequelae)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_sequelae)
                     fatal_words = [word.lower() for line in fatal_lines for word in line.split()]
 
                     # Check each word against line_up_to_next_disease and extract matching words
@@ -656,8 +651,8 @@ def get_events_tab(source_text, country):
                     if matching_words_for_fatal and any(word in fatal_matching_llt for word in matching_words_for_fatal):
                         outcome_of_the_events = outcome_of_the_events_keywords[5]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_fatal)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_fatal)
                     unchanged_words = [word.lower() for line in unchanged_lines for word in line.split()]
 
                     # Check each word against line_up_to_next_disease and extract matching words
@@ -671,8 +666,8 @@ def get_events_tab(source_text, country):
                     if matching_words_for_unchanged and any(word in unchanged_matching_llt for word in matching_words_for_unchanged):
                         outcome_of_the_events = outcome_of_the_events_keywords[6]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_unchanged)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_unchanged)
                     worsened_words = [word.lower() for line in worsened_lines for word in line.split()]
 
                     # Check each word against line_up_to_next_disease and extract matching words
@@ -688,10 +683,10 @@ def get_events_tab(source_text, country):
                     if matching_words_for_worsened and any(word in worsened_matching_llt for word in matching_words_for_worsened):
                         outcome_of_the_events = outcome_of_the_events_keywords[7]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_worsened)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_worsened)
                 if found_keyword_second is not True and found_keyword is not True:
-                    print("found_keyword and second from last loop", found_keyword, found_keyword_second)
+                    #print("found_keyword and second from last loop", found_keyword, found_keyword_second)
                     outcome_of_the_events = outcome_of_the_events_keywords[0]
 
                 comments = line_up_to_next_disease
@@ -727,24 +722,25 @@ def get_events_tab(source_text, country):
                 }
 
                 all_reaction_information.append(reaction_information)
-                print(f"reaction for every event {i} . {llt}", reaction_information)
-                print("About Event", llt)
-                print("comments for each event:", comments)
-                print("duration:", duration)
-                print('duration unit:', time_unit)
-                #print(f"Line up to next disease: {line_up_to_next_disease}")
-                    # Add any additional logic or actions for serious events
-                print("term_highlighted_by_reporter:", term_highlighted_by_reporter)
 
-                print("results in death:", results_in_death)
-                print("life threat:", life_threatening)
-                print("hospitalized:", hospitalized)
-                print("disabled:", disabled)
-                print("congenital:", congenital)
-                print("outcome_of_events", outcome_of_the_events)
-                print("other medically important condition", other_medically_important_condition)
-                print("reaction_information_section", reaction_information)
-                print("######################")
+                # print(f"reaction for every event {i} . {llt}", reaction_information)
+                # print("About Event", llt)
+                # print("comments for each event:", comments)
+                # print("duration:", duration)
+                # print('duration unit:', time_unit)
+                # #print(f"Line up to next disease: {line_up_to_next_disease}")
+                #     # Add any additional logic or actions for serious events
+                # print("term_highlighted_by_reporter:", term_highlighted_by_reporter)
+                #
+                # print("results in death:", results_in_death)
+                # print("life threat:", life_threatening)
+                # print("hospitalized:", hospitalized)
+                # print("disabled:", disabled)
+                # print("congenital:", congenital)
+                # print("outcome_of_events", outcome_of_the_events)
+                # print("other medically important condition", other_medically_important_condition)
+                # print("reaction_information_section", reaction_information)
+                # print("######################")
 
             else:
                 # If there's no next disease in the list, take the text up to the end of the document
@@ -759,7 +755,7 @@ def get_events_tab(source_text, country):
                 dod = ""
                 lines = line_up_to_next_disease.split("/n")
 
-                print("lines are", lines)
+                # print("lines are", lines)
 
                 pattern = re.compile(r'\b(?:' + '|'.join(map(re.escape, dead_keywords)) + r')\b', flags=re.IGNORECASE)
 
@@ -779,19 +775,6 @@ def get_events_tab(source_text, country):
                 #             break
                 #         else:
                 #             results_in_death = 'No'
-                dead_keywords = ["expired", "died", "dead", "passed away", "demised", "murdered", "lost life"]
-
-                pattern = re.compile(r'\b(?:' + '|'.join(map(re.escape, dead_keywords)) + r')\b', flags=re.IGNORECASE)
-
-                # Search for the keywords in the text
-                matches = pattern.findall(line_up_to_next_disease)
-
-                # Output the matches
-                if matches:
-                    for match in matches:
-                        print(f"Found match: {match}")
-                else:
-                    print("************not matched*********")
                 # if 'died' in text_after_medicine or 'dead' in text_after_medicine:
                 #     results_in_death = 'Yes'
                 # else:
@@ -847,7 +830,7 @@ def get_events_tab(source_text, country):
                 for event in event_terms['event_terms']:
                     if event in llt:
                         other_medically_important_condition = 'Yes'
-                        print(event)
+                        # print(event)
                         break
                     else:
                         other_medically_important_condition = 'No'
@@ -865,62 +848,62 @@ def get_events_tab(source_text, country):
                     if check_keywords(line, resolved_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[1]
                         found_keyword = True
-                        print("found_keyword from first loop", found_keyword)
+                        # print("found_keyword from first loop", found_keyword)
                         outcome_llt.add(llt)
-                        print("present in resolved", llt)
-                        print(f"Resolved: {line}")
+                        # print("present in resolved", llt)
+                        # print(f"Resolved: {line}")
                         break
                     elif check_keywords(line, not_resolved_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[2]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in not resolved", llt)
-                        print(f"NOT Resolved: {line}")
+                        # print("present in not resolved", llt)
+                        # print(f"NOT Resolved: {line}")
                         break
                     elif check_keywords(line, resolving_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[3]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in resolving", llt)
-                        print(f"Resolving: {line}")
+                        # print("present in resolving", llt)
+                        # print(f"Resolving: {line}")
                         break
                     elif check_keywords(line, sequelae_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[4]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in sequele", llt)
-                        print(f"Sequelae: {line}")
+                        # print("present in sequele", llt)
+                        # print(f"Sequelae: {line}")
                         break
                     elif check_keywords(line, fatal_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[5]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in fatal", llt)
-                        print(f"Fatal: {line}")
+                        # print("present in fatal", llt)
+                        # print(f"Fatal: {line}")
                         break
                     elif check_keywords(line, unchanged_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[6]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in unchanged", llt)
-                        print(f"Unchanged: {line}")
+                        # print("present in unchanged", llt)
+                        # print(f"Unchanged: {line}")
                         break
                     elif check_keywords(line, worsened_keywords):
                         outcome_of_the_events = outcome_of_the_events_keywords[7]
                         found_keyword = True
                         outcome_llt.add(llt)
-                        print("present in worsened", llt)
-                        print(f"Worsened: {line}")
+                        # print("present in worsened", llt)
+                        # print(f"Worsened: {line}")
                         break
                 found_keyword_second = False
 
                 if found_keyword is not True:
                     resolved_words = [word.lower() for line in resolved_lines for word in line.split()]
-                    print("resolved words are", resolved_words)
+                    # print("resolved words are", resolved_words)
 
                     words_in_line = [word for word in line_up_to_next_disease.lower().split() if is_common_word(word)]
-                    print("About remaining llt", llt)
-                    print("line_up_to_next_disease", line_up_to_next_disease)
+                    # print("About remaining llt", llt)
+                    # print("line_up_to_next_disease", line_up_to_next_disease)
 
                     common_words = {'the', 'in', 'a', 'and', 'to', 'of', 'for', 'with', 'on', 'at', 'by', 'from', 'as',
                                     'all'}  # Add other common words as needed
@@ -935,9 +918,9 @@ def get_events_tab(source_text, country):
                     if matching_words and any(word in resolved_matching_llt for word in matching_words):
                         outcome_of_the_events = outcome_of_the_events_keywords[1]
                         found_keyword_second = True
-                        print("found_keyword from secon", found_keyword)
-                        print("This event has matched from previous:", llt)
-                        print("Matching Words:", matching_words)
+                        # print("found_keyword from secon", found_keyword)
+                        # print("This event has matched from previous:", llt)
+                        # print("Matching Words:", matching_words)
 
                     not_resolved_words = [word.lower() for line in not_resolved_lines for word in line.split()]
 
@@ -954,8 +937,8 @@ def get_events_tab(source_text, country):
                             word in not_resolved_matching_llt for word in matching_words_for_not_resolved):
                         outcome_of_the_events = outcome_of_the_events_keywords[2]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_not_resolved)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_not_resolved)
 
                     resolving_words = [word.lower() for line in resolving_lines for word in line.split()]
 
@@ -972,8 +955,8 @@ def get_events_tab(source_text, country):
                             word in resolving_matching_llt for word in matching_words_for_resolving):
                         outcome_of_the_events = outcome_of_the_events_keywords[3]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_resolving)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_resolving)
 
                     sequelae_words = [word.lower() for line in sequelae_lines for word in line.split()]
 
@@ -989,8 +972,8 @@ def get_events_tab(source_text, country):
                             word in sequelae_matching_llt for word in matching_words_for_sequelae):
                         outcome_of_the_events = outcome_of_the_events_keywords[4]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_sequelae)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_sequelae)
                     fatal_words = [word.lower() for line in fatal_lines for word in line.split()]
 
                     # Check each word against line_up_to_next_disease and extract matching words
@@ -1004,8 +987,8 @@ def get_events_tab(source_text, country):
                     if matching_words_for_fatal and any(word in fatal_matching_llt for word in matching_words_for_fatal):
                         outcome_of_the_events = outcome_of_the_events_keywords[5]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_fatal)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_fatal)
                     unchanged_words = [word.lower() for line in unchanged_lines for word in line.split()]
 
                     # Check each word against line_up_to_next_disease and extract matching words
@@ -1020,8 +1003,8 @@ def get_events_tab(source_text, country):
                             word in unchanged_matching_llt for word in matching_words_for_unchanged):
                         outcome_of_the_events = outcome_of_the_events_keywords[6]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_unchanged)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_unchanged)
                     worsened_words = [word.lower() for line in worsened_lines for word in line.split()]
 
                     # Check each word against line_up_to_next_disease and extract matching words
@@ -1038,11 +1021,11 @@ def get_events_tab(source_text, country):
                             word in worsened_matching_llt for word in matching_words_for_worsened):
                         outcome_of_the_events = outcome_of_the_events_keywords[7]
                         found_keyword_second = True
-                        print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
-                        print("Matching Words:", matching_words_for_worsened)
+                        # print(f"This event has matched from previous ({outcome_of_the_events}):", llt)
+                        # print("Matching Words:", matching_words_for_worsened)
 
                 if found_keyword_second is not True and found_keyword is not True:
-                    print("Found keyword and second keyword", found_keyword, found_keyword_second)
+                    # print("Found keyword and second keyword", found_keyword, found_keyword_second)
                     outcome_of_the_events = outcome_of_the_events_keywords[0]
                 reaction_information = {
                     "is_this_the_main_event": "",
@@ -1076,32 +1059,30 @@ def get_events_tab(source_text, country):
                 }
 
                 all_reaction_information.append(reaction_information)
-                print(f"Reaction for  event {i} . {llt}:", reaction_information)
-                print("About event from else", llt)
-                # print(f"Line up to end of document: {line_up_to_next_disease}")
-                print("term_highlighted_by_reporter:", term_highlighted_by_reporter)
-                print("duration:", duration)
-                print('duration unit:', time_unit)
-                print("results in death:", results_in_death)
-                print("life threat:", life_threatening)
-                print("hospitalized:", hospitalized)
-                print("disabled:", disabled)
-                print("congenital:", congenital)
-                print(f"outcome_of_the_events for ({llt})", outcome_of_the_events)
-                print("other medically important condition", other_medically_important_condition)
-                print("comments:", comments)
-                print("####################")
-                print("recation_information_section", reaction_information)
+                # print(f"Reaction for  event {i} . {llt}:", reaction_information)
+                # print("About event from else", llt)
+                # # print(f"Line up to end of document: {line_up_to_next_disease}")
+                # print("term_highlighted_by_reporter:", term_highlighted_by_reporter)
+                # print("duration:", duration)
+                # print('duration unit:', time_unit)
+                # print("results in death:", results_in_death)
+                # print("life threat:", life_threatening)
+                # print("hospitalized:", hospitalized)
+                # print("disabled:", disabled)
+                # print("congenital:", congenital)
+                # print(f"outcome_of_the_events for ({llt})", outcome_of_the_events)
+                # print("other medically important condition", other_medically_important_condition)
+                # print("comments:", comments)
+                # print("####################")
+                # print("recation_information_section", reaction_information)
         #print("llt for outcome", outcome_llt)
 
         # again searching about outcome from symptoms or words that are not recognizable.
 
-
-
-
-
-
-
+        if all_reaction_information:
+            reaction_for_automation = all_reaction_information[0]
+        else:
+            reaction_for_automation = []
         reaction_event = {
 
             "reaction_information": all_reaction_information,
@@ -1180,7 +1161,7 @@ def get_events_tab(source_text, country):
 
         }
 
-        print("5th tab output is", json.dumps(reaction_event))
+        # print("5th tab output is", json.dumps(reaction_event))
         return reaction_event
     except Exception as e:
         print('Error! Code: {c}, Message, {m}'.format(c=type(e).__name__, m=str(e)))
