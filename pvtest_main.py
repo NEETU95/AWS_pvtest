@@ -1,9 +1,10 @@
 import requests
+from flask import Flask,request
 from PyPDF2 import PdfReader
 from general_reporter import get_general_reporter
 from patient_tab import get_patient_text
 from parent import get_parent_text
-from events_tab import get_events_tab
+#from events_tab import get_events_tab
 import spacy
 import pysftp
 import os
@@ -16,23 +17,22 @@ import json
 
 from metapub import PubMedFetcher
 
-
-# Create a FastAPI instance
-
-# C:\Users\kathiaja\Downloads\Pvtest-main\Pvtest-main\main.py
-
 def pdf_extraction(pdf_info):
     print("*******NLP API CALLING STARTED*********")
+    print("pdf_info : ",pdf_info)
     #data_event = json.loads(event['body'])
     #pdf_info = str(data_event['pdf_info'])
     # shutil.copy2('*', '/tmp')
 
+    
     destination_directory = 'random_temp'
     os.chdir('tmp')
     if not os.path.exists(destination_directory):
         os.makedirs(destination_directory)
     # os.makedirs('random_temp', exist_ok=True)  ### changing directory
     os.chdir('random_temp')
+    print(" current exe : ",os.getcwd())
+    print(" current ls : ",os.listdir())
     try:
         shutil.copy2('../../product_names.xlsx', '.')
     except shutil.SameFileError:
@@ -56,6 +56,8 @@ def pdf_extraction(pdf_info):
     except FileExistsError:
         # Handle if the destination directory already exists
         pass
+        
+    
     success = True
     message = ""
     exception_values = True
@@ -63,30 +65,29 @@ def pdf_extraction(pdf_info):
         try:
             cnopts = pysftp.CnOpts()
             cnopts.hostkeys = None
-            ftp = pysftp.Connection('testnovumgen.topiatech.co.uk', username='pvtestuser', password='Umlup01cli$$6969',
-                                    cnopts=cnopts)
+            ftp = pysftp.Connection('testnovumgen.topiatech.co.uk', username='pvtestuser', password='Umlup01cli$$6969',cnopts=cnopts)
             print("****STARTED SFTP ******")
             with ftp.cd('/var/sftp/upload/pvtestusers/'):
                 files = ftp.listdir()
-                print('files : ',files)
-                for file in files:
-                    if pdf_info in file:
+                print("files : ",files)
+                matched_files = list(filter(lambda file: pdf_info in file, files))
+                print("matched_files : ",matched_files)
+                if matched_files:
+
+                    for file in matched_files:
                         ftp.get(file)
-                        #print('yes downloaded both files')
                         if 'Weekly' in file:
                             weekly_reader_1 = file
                         else:
                             source_document = file
-                # matched_files = list(filter(lambda file: pdf_info in file, files))
-                # if matched_files:
-                #
-                #     for file in matched_files:
+                # for file in files:
+                #     if pdf_info in file:
                 #         ftp.get(file)
+                #         #print('yes downloaded both files')
                 #         if 'Weekly' in file:
                 #             weekly_reader_1 = file
                 #         else:
                 #             source_document = file
-
         except Exception as e:
             #print(f"Exception occurred: {str(e)}")
             success = False
@@ -306,17 +307,17 @@ def pdf_extraction(pdf_info):
             #print("success",success)
             #print("message", message)
             raise Exception(f"Exception occurred from parent_tab: {str(e)}")
-        try:
-            events_extraction = get_events_tab(source_text=all_text, country=country_verify)
-        except Exception as e:
-            #print(f"Exception occurred from events_tab: {str(e)}")
-            success = False
-            message = f"Exception occurred from events_tab: {str(e)}"
-            #print("success", success)
-            #print("message", message)
-            raise Exception(f"Exception occurred from events_tab: {str(e)}")
+        # try:
+        #     events_extraction = get_events_tab(source_text=all_text, country=country_verify)
+        # except Exception as e:
+        #     #print(f"Exception occurred from events_tab: {str(e)}")
+        #     success = False
+        #     message = f"Exception occurred from events_tab: {str(e)}"
+        #     #print("success", success)
+        #     #print("message", message)
+        #     raise Exception(f"Exception occurred from events_tab: {str(e)}")
 
-        print("success above", success)
+        #print("success above", success)
 
         try:
             if success == True:
@@ -331,10 +332,13 @@ def pdf_extraction(pdf_info):
                     "general_information": general_extraction,
                     "reporter": reporter_extraction,
                     "patient": patient_extraction,
-                    "parent": parent_extraction,
-                    "reaction_event": events_extraction
+                    "parent": parent_extraction
                 }
+                #print(" java create case api response of NLP model", json.dumps(response_for_integration))
 
+
+                #print("=--------------------------------------------------------------------------------------------------------")
+                # Send the POST request with JSON data
 
 
                 response_from_my_api = {
