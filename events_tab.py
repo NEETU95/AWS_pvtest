@@ -344,6 +344,7 @@ def get_events_tab(source_text, country):
         #print("after history filter", events_llt)
 
         term_highlighted_by_reporter_keywords = ['Yes, highlighted by the reporter, Not serious', 'No, not highlighted by the reporter, Not serious', 'Yes, highlighted by the reporter, Serious', 'No, not highlighted by the reporter, Serious']
+
         term_highlighted_by_reporter = ""
 
 
@@ -357,6 +358,7 @@ def get_events_tab(source_text, country):
 
 
         outcome_of_the_events_keywords = ['Unknown', 'Recovered/Resolved', 'Recovering/Resolving', 'Not Recovered/Not Resolved/Ongoing', 'Recovered/Resolved with Sequelae', 'Fatal', 'Unchanged', 'Worsened']
+
         outcome_of_the_events = ""
 
 
@@ -430,10 +432,10 @@ def get_events_tab(source_text, country):
 
                 # Output the matches
                 if matches:
-                    results_in_death = 'Yes'
+                    results_in_death = True
 
                 else:
-                    results_in_death = 'No'
+                    results_in_death = False
                 # for line in lines:
                 #     for keyword in dead_keywords:
                 #         if keyword in line:
@@ -446,30 +448,30 @@ def get_events_tab(source_text, country):
                 # else:
                 #     results_in_death = 'No'
                 if 'life-threat' in line_up_to_next_disease or 'mortal' in line_up_to_next_disease:
-                    life_threatening = 'Yes'
+                    life_threatening = True
                 else:
-                    life_threatening = 'No'
+                    life_threatening = False
                 for hospi in hospitalized_keywords:
                     if hospi in text_before_medicine:
-                        hospitalized = 'Yes'
+                        hospitalized = True
                         break
                     elif hospi in text_after_medicine:
                         hospi_start_index = text_after_medicine.find(hospi)
                         hospitalized_lines = text_after_medicine[hospi_start_index:]
-                        hospitalized = 'Yes'
+                        hospitalized = True
                         break
                     else:
-                        hospitalized = 'No'
+                        hospitalized = False
                 if 'disabled' in line_up_to_next_disease or 'chronic' in line_up_to_next_disease:
-                    disabled = 'Yes'
+                    disabled = True
                 else:
-                    disabled = 'No'
+                    disabled = False
                 for congi in abnormality_keywords:
                     if congi in text_before_medicine:
-                        congenital = 'Yes'
+                        congenital = True
                         break
                     else:
-                        congenital = 'No'
+                        congenital = False
 
                 #
                 duration = ""
@@ -495,13 +497,13 @@ def get_events_tab(source_text, country):
 
                 for event in event_terms['event_terms']:
                     if event in llt:
-                        other_medically_important_condition = 'Yes'
+                        other_medically_important_condition = True
                         #print(event)
                         break
                     else:
-                        other_medically_important_condition = 'No'
+                        other_medically_important_condition = False
 
-                if results_in_death == "Yes" or life_threatening == "Yes" or hospitalized == "Yes" or disabled == "Yes" or congenital == "Yes" or other_medically_important_condition =='Yes':
+                if results_in_death == True or life_threatening == True or hospitalized == True or disabled == True or congenital == True or other_medically_important_condition ==True:
                     term_highlighted_by_reporter = term_highlighted_by_reporter_keywords[2]
                 else:
                     term_highlighted_by_reporter = term_highlighted_by_reporter_keywords[0]
@@ -764,10 +766,10 @@ def get_events_tab(source_text, country):
 
                 # Output the matches
                 if matches:
-                    results_in_death = 'Yes'
+                    results_in_death = True
 
                 else:
-                    results_in_death = 'No'
+                    results_in_death = False
                 # for i, line in enumerate(lines):
                 #     for keyword in dead_keywords:
                 #         if keyword in line:
@@ -780,31 +782,31 @@ def get_events_tab(source_text, country):
                 # else:
                 #     results_in_death = 'No'
                 if 'life threat' in line_up_to_next_disease or 'mortal' in line_up_to_next_disease:
-                    life_threatening = 'Yes'
+                    life_threatening = True
                 else:
-                    life_threatening = 'No'
+                    life_threatening = False
                 for hospi in hospitalized_keywords:
                     if hospi in text_before_medicine:
-                        hospitalized = 'Yes'
+                        hospitalized = True
                         break
                     elif hospi in text_after_medicine:
                         hospi_start_index = text_after_medicine.find(hospi)
                         hospitalized_lines = text_after_medicine[hospi_start_index:]
                         if llt in hospitalized_lines:
-                            hospitalized = 'Yes'
+                            hospitalized = True
                             break
                     else:
-                        hospitalized = 'No'
+                        hospitalized = False
                 if 'disabled' in line_up_to_next_disease or 'chronic' in line_up_to_next_disease:
-                    disabled = 'Yes'
+                    disabled = True
                 else:
-                    disabled = 'No'
+                    disabled = False
                 for congi in abnormality_keywords:
                     if congi in text_before_medicine:
-                        congenital = 'Yes'
+                        congenital = True
                         break
                     else:
-                        congenital = 'No'
+                        congenital = False
 
                 #
                 duration = ""
@@ -829,13 +831,13 @@ def get_events_tab(source_text, country):
 
                 for event in event_terms['event_terms']:
                     if event in llt:
-                        other_medically_important_condition = 'Yes'
+                        other_medically_important_condition = True
                         # print(event)
                         break
                     else:
-                        other_medically_important_condition = 'No'
+                        other_medically_important_condition = False
 
-                if results_in_death == "Yes" or life_threatening == "Yes" or hospitalized == "Yes" or disabled == "Yes" or congenital == "Yes" or other_medically_important_condition == 'Yes':
+                if results_in_death == True or life_threatening == True or hospitalized == True or disabled == True or congenital == True or other_medically_important_condition == True:
                     term_highlighted_by_reporter = term_highlighted_by_reporter_keywords[2]
                 else:
                     term_highlighted_by_reporter = term_highlighted_by_reporter_keywords[0]

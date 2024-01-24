@@ -429,5 +429,3 @@ def pdf_extraction(pdf_info):
             print("Exception values False executed")
             return response
 
-# trail = pdf_extraction(weekly_reader_1="Weekly Literature Hits PDF-senkoro.pdf", source_document="Senkoro E_.pdf")
-# print(trail)
